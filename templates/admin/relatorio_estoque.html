@@ -114,17 +114,17 @@ tr:hover {
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
             <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Estoque OK</p>
-            <h3 style="margin: 0.5rem 0 0; color: #28a745; font-size: 2.5rem;">{{ estoque_ok|length }}</h3>
+            <h3 style="margin: 0.5rem 0 0; color: #28a745; font-size: 2.5rem;">{{ estoque_ok.count }}</h3>
             <p style="margin: 0.5rem 0 0; color: var(--neutral-500); font-size: 0.85rem;">produtos</p>
         </div>
         <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
             <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Estoque Baixo</p>
-            <h3 style="margin: 0.5rem 0 0; color: #ffc107; font-size: 2.5rem;">{{ estoque_baixo|length }}</h3>
+            <h3 style="margin: 0.5rem 0 0; color: #ffc107; font-size: 2.5rem;">{{ estoque_baixo.count }}</h3>
             <p style="margin: 0.5rem 0 0; color: var(--neutral-500); font-size: 0.85rem;">precisam reposição</p>
         </div>
         <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
             <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Esgotados</p>
-            <h3 style="margin: 0.5rem 0 0; color: #dc3545; font-size: 2.5rem;">{{ esgotados|length }}</h3>
+            <h3 style="margin: 0.5rem 0 0; color: #dc3545; font-size: 2.5rem;">{{ esgotados.count }}</h3>
             <p style="margin: 0.5rem 0 0; color: var(--neutral-500); font-size: 0.85rem;">sem estoque</p>
         </div>
     </div>
@@ -148,24 +148,24 @@ tr:hover {
                 </tr>
             </thead>
             <tbody>
-                {% for produto in mais_vendidos %}
+                {% for item in mais_vendidos %}
                 <tr>
-                    <td><strong>{{ produto.produto__nome }}</strong></td>
-                    <td>{{ produto.produto__estoque }} unidades</td>
-                    <td>{{ produto.quantidade_vendida }} vendidos</td>
+                    <td><strong>{{ item.produto__nome }}</strong></td>
+                    <td>{{ item.produto__estoque }} unidades</td>
+                    <td>{{ item.vendidos }} vendidos</td>
                     <td>
-                        {% if produto.produto__estoque == 0 %}
+                        {% if item.produto__estoque == 0 %}
                             <span class="status-badge badge-esgotado">Esgotado</span>
-                        {% elif produto.produto__estoque <= 10 %}
+                        {% elif item.produto__estoque <= 10 %}
                             <span class="status-badge badge-baixo">Baixo</span>
                         {% else %}
                             <span class="status-badge badge-ok">OK</span>
                         {% endif %}
                     </td>
                     <td>
-                        {% if produto.produto__estoque == 0 %}
+                        {% if item.produto__estoque == 0 %}
                             <strong style="color: #dc3545;">Reabastecer urgente</strong>
-                        {% elif produto.produto__estoque <= 10 %}
+                        {% elif item.produto__estoque <= 10 %}
                             <strong style="color: #ffc107;">Planejar reposição</strong>
                         {% else %}
                             Monitorar

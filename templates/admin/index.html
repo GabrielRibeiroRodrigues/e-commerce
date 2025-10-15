@@ -1,0 +1,157 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.dashboard-shortcuts {
+    background: linear-gradient(135deg, #1e8050 0%, #15603d 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dashboard-shortcuts h2 {
+    color: white;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.shortcut-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: all 0.3s ease;
+    border-left: 4px solid #1e8050;
+}
+
+.shortcut-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    text-decoration: none;
+}
+
+.shortcut-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #1e8050;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shortcut-card p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.shortcut-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Shortcuts -->
+<div class="dashboard-shortcuts">
+    <h2>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Dashboards & Relatórios
+    </h2>
+    
+    <div class="shortcuts-grid">
+        <a href="{% url 'core:dashboard_admin' %}" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+                Dashboard Principal
+            </h3>
+            <p>Visão geral com métricas de vendas, pedidos, usuários e alertas do sistema</p>
+        </a>
+        
+        <a href="{% url 'core:relatorio_vendas' %}" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Relatório de Vendas
+            </h3>
+            <p>Análise detalhada de vendas com filtros, estatísticas e produtos mais vendidos</p>
+        </a>
+        
+        <a href="{% url 'core:relatorio_estoque' %}" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+                Relatório de Estoque
+            </h3>
+            <p>Controle de inventário com alertas de estoque baixo e produtos esgotados</p>
+        </a>
+        
+        <a href="{% url 'core:relatorio_usuarios' %}" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Relatório de Usuários
+            </h3>
+            <p>Análise de clientes, top compradores e taxa de retenção</p>
+        </a>
+        
+        <a href="/admin/core/solicitacaodados/?status__exact=pendente" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                Solicitações LGPD
+            </h3>
+            <p>Gerenciar solicitações pendentes de dados pessoais (LGPD/GDPR)</p>
+        </a>
+        
+        <a href="{% url 'core:exportar_vendas_csv' %}" class="shortcut-card">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar Dados
+            </h3>
+            <p>Exportar relatórios de vendas e estoque em formato CSV</p>
+        </a>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

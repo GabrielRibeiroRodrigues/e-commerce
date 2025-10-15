@@ -104,7 +104,7 @@ def dashboard_admin(request):
         .values('produto__nome')
         .annotate(
             quantidade=Sum('quantidade'),
-            receita=Sum(F('quantidade') * F('preco'), output_field=DecimalField())
+            receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
         )
         .order_by('-quantidade')[:10]
     )
@@ -117,7 +117,7 @@ def dashboard_admin(request):
         .values('produto__categoria__nome')
         .annotate(
             total=Sum('quantidade'),
-            receita=Sum(F('quantidade') * F('preco'), output_field=DecimalField())
+            receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
         )
         .order_by('-total')[:5]
     )
@@ -258,13 +258,15 @@ def relatorio_vendas(request):
         'produto__nome', 'produto__categoria__nome'
     ).annotate(
         quantidade=Sum('quantidade'),
-        receita=Sum(F('quantidade') * F('preco'), output_field=DecimalField())
+        receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
     ).order_by('-receita')
     
     context = {
-        'pedidos': pedidos.order_by('-criado_em')[:100],  # Últimos 100
-        'stats': stats,
-        'produtos_vendidos': produtos_vendidos[:20],  # Top 20
+        'ultimos_pedidos': pedidos.order_by('-criado_em')[:100],  # Últimos 100
+        'total_vendas': stats['total_vendas'] or 0,
+        'quantidade_pedidos': stats['quantidade_pedidos'] or 0,
+        'ticket_medio': stats['ticket_medio'] or 0,
+        'produtos_mais_vendidos': produtos_vendidos[:20],  # Top 20
         'data_inicio': data_inicio,
         'data_fim': data_fim,
         'status': status,
@@ -298,14 +300,12 @@ def relatorio_estoque(request):
     )['valor_total'] or 0
     
     context = {
-        'produtos_ok': produtos_ok.select_related('categoria'),
-        'produtos_baixo': produtos_baixo.select_related('categoria'),
-        'produtos_esgotado': produtos_esgotado.select_related('categoria'),
-        'produtos_mais_vendidos': produtos_mais_vendidos,
-        'valor_estoque': valor_estoque,
-        'total_ok': produtos_ok.count(),
-        'total_baixo': produtos_baixo.count(),
-        'total_esgotado': produtos_esgotado.count(),
+        'estoque_ok': produtos_ok.select_related('categoria'),
+        'estoque_baixo': produtos_baixo.select_related('categoria'),
+        'esgotados': produtos_esgotado.select_related('categoria'),
+        'mais_vendidos': produtos_mais_vendidos,
+        'valor_total_estoque': valor_estoque,
+        'total_produtos_ativos': Produto.objects.filter(ativo=True).count(),
     }
     
     return render(request, 'admin/relatorio_estoque.html', context)
@@ -328,10 +328,19 @@ def relatorio_usuarios(request):
     ).count()
     
     # Usuários com mais pedidos
-    top_clientes = User.objects.annotate(
-        total_pedidos=Count('pedidos'),
-        total_gasto=Sum('pedidos__total')
-    ).filter(total_pedidos__gt=0).order_by('-total_gasto')[:20]
+    top_clientes = list(
+        Pedido.objects.values(
+            'usuario__id', 
+            'usuario__username',
+            'usuario__first_name',
+            'usuario__email',
+            'usuario__is_active'
+        ).annotate(
+            quantidade_pedidos=Count('id'),
+            total_gasto=Sum('total'),
+            ticket_medio=Avg('total')
+        ).filter(quantidade_pedidos__gt=0).order_by('-total_gasto')[:20]
+    )
     
     # Novos usuários por mês
     novos_por_mes = User.objects.filter(
@@ -357,13 +366,30 @@ def relatorio_usuarios(request):
         2
     )
     
+    total_usuarios = User.objects.count()
+    usuarios_mes = User.objects.filter(
+        date_joined__gte=hoje.replace(day=1)
+    ).count()
+    
+    percentual_ativos = round(
+        (usuarios_ativos / total_usuarios * 100) if total_usuarios > 0 else 0,
+        2
+    )
+    percentual_inativos = round(
+        (usuarios_inativos / total_usuarios * 100) if total_usuarios > 0 else 0,
+        2
+    )
+    
     context = {
-        'total_usuarios': User.objects.count(),
+        'total_usuarios': total_usuarios,
         'usuarios_ativos': usuarios_ativos,
         'usuarios_inativos': usuarios_inativos,
+        'percentual_ativos': percentual_ativos,
+        'percentual_inativos': percentual_inativos,
         'top_clientes': top_clientes,
-        'novos_por_mes_json': json.dumps(list(novos_por_mes), default=str),
+        'novos_usuarios_por_mes_json': json.dumps(list(novos_por_mes), default=str),
         'taxa_retencao': taxa_retencao,
+        'novos_usuarios_mes': usuarios_mes,
     }
     
     return render(request, 'admin/relatorio_usuarios.html', context)

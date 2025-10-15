@@ -228,7 +228,7 @@ tr:hover {
                     </td>
                     <td><strong>{{ produto.produto__nome }}</strong></td>
                     <td>{{ produto.quantidade }} unidade{{ produto.quantidade|pluralize }}</td>
-                    <td><strong>R$ {{ produto.total|floatformat:2 }}</strong></td>
+                    <td><strong>R$ {{ produto.receita|floatformat:2 }}</strong></td>
                 </tr>
                 {% empty %}
                 <tr>

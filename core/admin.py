@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.urls import reverse
+from django.urls import reverse, path
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Count, Q
 from django.template.response import TemplateResponse
+from django.shortcuts import redirect
 import json
 import csv
 from .models import ConsentimentoLGPD, SolicitacaoDados, LogAcessoDados, PoliticaPrivacidade
