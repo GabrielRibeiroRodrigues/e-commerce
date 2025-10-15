@@ -1,27 +1,25 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Cadastro - Farmácia QUEOPS{% endblock %}
+{% block title %}Redefinir Senha - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
 <div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--brand-050) 0%, var(--surface-muted) 100%); padding: 2rem 1rem;">
-    <div class="container" style="max-width: 500px;">
+    <div class="container" style="max-width: 450px;">
         <div style="background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden;">
             <!-- Header com gradiente -->
             <div style="background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); padding: 2.5rem 2rem; text-align: center;">
                 <div style="background: white; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="8.5" cy="7" r="4"></circle>
-                        <line x1="20" y1="8" x2="20" y2="14"></line>
-                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
                     </svg>
                 </div>
                 <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">
-                    Crie sua conta
+                    Nova Senha
                 </h1>
                 <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0; font-size: 0.95rem;">
-                    Junte-se a nós e aproveite nossos produtos
+                    Crie uma senha segura para sua conta
                 </p>
             </div>
 
@@ -36,30 +34,21 @@
                                 {{ field.label }}
                             </label>
                             <div style="position: relative;">
-                                {% if field.name == 'username' %}
-                                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--neutral-500);">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                    </span>
-                                {% elif 'password' in field.name %}
-                                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--neutral-500);">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                        </svg>
-                                    </span>
-                                {% endif %}
+                                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--neutral-500);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
                                 <input 
-                                    type="{{ field.field.widget.input_type }}" 
+                                    type="password" 
                                     name="{{ field.name }}" 
                                     id="{{ field.id_for_label }}"
-                                    {% if field.field.required %}required{% endif %}
-                                    style="width: 100%; padding: 0.85rem 0.85rem 0.85rem {% if field.name == 'username' or 'password' in field.name %}2.8rem{% else %}1rem{% endif %}; border: 2px solid var(--neutral-200); border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; outline: none;"
+                                    required
+                                    style="width: 100%; padding: 0.85rem 0.85rem 0.85rem 2.8rem; border: 2px solid var(--neutral-200); border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; outline: none;"
                                     onfocus="this.style.borderColor='var(--brand-500)'; this.style.boxShadow='0 0 0 3px rgba(30, 128, 80, 0.1)';"
                                     onblur="this.style.borderColor='var(--neutral-200)'; this.style.boxShadow='none';"
-                                    placeholder="Digite {% if field.name == 'username' %}seu nome de usuário{% elif field.name == 'password1' %}uma senha segura{% elif field.name == 'password2' %}a senha novamente{% endif %}"
+                                    placeholder="Digite sua nova senha"
                                 >
                             </div>
                             {% if field.help_text %}
@@ -93,18 +82,9 @@
                     {% endif %}
 
                     <button type="submit" style="width: 100%; background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); color: white; border: none; padding: 1rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(30, 128, 80, 0.3); margin-top: 0.5rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 128, 80, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 128, 80, 0.3)';">
-                        Criar Conta
+                        Redefinir Senha
                     </button>
                 </form>
-
-                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--neutral-100); text-align: center;">
-                    <p style="color: var(--neutral-600); font-size: 0.95rem; margin: 0;">
-                        Já tem uma conta? 
-                        <a href="{% url 'usuarios:login' %}" style="color: var(--brand-600); font-weight: 600; text-decoration: none; transition: color 0.3s;">
-                            Faça login
-                        </a>
-                    </p>
-                </div>
             </div>
         </div>
     </div>

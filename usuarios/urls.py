@@ -13,4 +13,7 @@ urlpatterns = [
     path('desejos/', views.lista_desejos, name='lista_desejos'),
     path('desejos/adicionar/<int:produto_id>/', views.adicionar_lista_desejos, name='adicionar_desejo'),
     path('desejos/remover/<int:produto_id>/', views.remover_lista_desejos, name='remover_desejo'),
+    path('recuperar-senha/', views.recuperar_senha, name='recuperar_senha'),
+    path('recuperar-senha/confirmacao/', views.recuperar_senha_confirmacao, name='recuperar_senha_confirmacao'),
+    path('redefinir-senha/<uidb64>/<token>/', views.redefinir_senha, name='redefinir_senha'),
 ]

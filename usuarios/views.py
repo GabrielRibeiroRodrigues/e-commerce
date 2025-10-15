@@ -6,10 +6,14 @@ from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 from pedidos.models import Pedido, Pagamento
 from produtos.models import Produto
 from .models import ListaDesejo, ContaSocial
@@ -330,3 +334,86 @@ def remover_lista_desejos(request, produto_id):
 
     retorno_padrao = reverse('usuarios:lista_desejos')
     return _redirecionar_destino(request, retorno_padrao)
+
+
+def recuperar_senha(request):
+    """View para solicitar recuperação de senha."""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        
+        if email:
+            # Busca usuário por e-mail
+            usuario = User.objects.filter(email=email).first()
+            
+            if usuario:
+                # Gera token de recuperação
+                token = default_token_generator.make_token(usuario)
+                uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+                
+                # Cria URL de recuperação
+                url_recuperacao = request.build_absolute_uri(
+                    reverse('usuarios:redefinir_senha', kwargs={'uidb64': uid, 'token': token})
+                )
+                
+                # Renderiza e envia e-mail
+                context = {
+                    'usuario': usuario,
+                    'url_recuperacao': url_recuperacao,
+                }
+                
+                html_message = render_to_string('emails/recuperacao_senha.html', context)
+                
+                try:
+                    send_mail(
+                        subject='Recuperação de Senha - Farmácia QUEOPS',
+                        message=f'Olá {usuario.first_name or usuario.username},\n\nAcesse o link para redefinir sua senha: {url_recuperacao}',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[usuario.email],
+                        html_message=html_message,
+                        fail_silently=False,
+                    )
+                    logger.info(f'E-mail de recuperação enviado para: {usuario.email}')
+                except Exception as e:
+                    logger.error(f'Erro ao enviar e-mail de recuperação: {e}')
+        
+        # Sempre redireciona para confirmação (segurança - não revela se e-mail existe)
+        return redirect('usuarios:recuperar_senha_confirmacao')
+    
+    return render(request, 'usuarios/recuperar_senha.html')
+
+
+def recuperar_senha_confirmacao(request):
+    """View de confirmação de envio de e-mail de recuperação."""
+    return render(request, 'usuarios/recuperar_senha_confirmacao.html')
+
+
+def redefinir_senha(request, uidb64, token):
+    """View para redefinir senha usando token."""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        usuario = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        usuario = None
+    
+    # Valida token
+    if usuario is not None and default_token_generator.check_token(usuario, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(usuario, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Senha redefinida com sucesso! Você já pode fazer login.')
+                logger.info(f'Senha redefinida para usuário: {usuario.username}')
+                return redirect('usuarios:login')
+        else:
+            form = SetPasswordForm(usuario)
+        
+        return render(request, 'usuarios/redefinir_senha.html', {'form': form})
+    else:
+        messages.error(request, 'Link de recuperação inválido ou expirado.')
+        return redirect('usuarios:recuperar_senha')

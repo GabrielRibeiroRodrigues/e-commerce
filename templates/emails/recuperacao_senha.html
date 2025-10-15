@@ -1,0 +1,44 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Recuperação de Senha{% endblock %}
+
+{% block content %}
+<h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+    Olá, {{ usuario.first_name|default:usuario.username }}!
+</h2>
+
+<p style="font-size: 1rem; line-height: 1.6; color: var(--cinza-escuro); margin-bottom: 1.5rem;">
+    Recebemos uma solicitação para redefinir a senha da sua conta na <strong>Farmácia QUEOPS</strong>.
+</p>
+
+<p style="font-size: 1rem; line-height: 1.6; color: var(--cinza-escuro); margin-bottom: 2rem;">
+    Clique no botão abaixo para criar uma nova senha:
+</p>
+
+<div style="text-align: center; margin: 2.5rem 0;">
+    <a href="{{ url_recuperacao }}" style="display: inline-block; background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); color: white; padding: 1rem 2.5rem; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(30, 128, 80, 0.3);">
+        Redefinir Minha Senha
+    </a>
+</div>
+
+<div style="background-color: var(--surface-muted); padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--brand-500); margin: 2rem 0;">
+    <p style="margin: 0; font-size: 0.9rem; line-height: 1.6; color: var(--neutral-700);">
+        <strong>⚠️ Atenção:</strong> Este link expira em <strong>24 horas</strong> por motivos de segurança.
+    </p>
+</div>
+
+<p style="font-size: 0.95rem; line-height: 1.6; color: var(--cinza-escuro); margin-bottom: 1rem;">
+    Se o botão não funcionar, copie e cole o link abaixo no seu navegador:
+</p>
+
+<div style="background-color: var(--surface-muted); padding: 1rem; border-radius: 6px; word-break: break-all; margin-bottom: 2rem;">
+    <code style="font-size: 0.85rem; color: var(--neutral-700);">{{ url_recuperacao }}</code>
+</div>
+
+<hr style="border: none; border-top: 1px solid var(--neutral-200); margin: 2rem 0;">
+
+<p style="font-size: 0.9rem; line-height: 1.6; color: var(--cinza-escuro); margin: 0;">
+    <strong>Você não solicitou esta alteração?</strong><br>
+    Se você não pediu para redefinir sua senha, ignore este e-mail. Sua senha permanecerá a mesma e sua conta está segura.
+</p>
+{% endblock %}
