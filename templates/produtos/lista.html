@@ -4,12 +4,12 @@
 {% block title %}Produtos - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<section class="page-hero">
     <div class="container">
-        <h1>📦 Nossos Produtos</h1>
-        <p>Encontre tudo o que você precisa para sua saúde</p>
+        <h1 class="hero-heading">Catálogo completo</h1>
+        <p class="hero-subtitle">Filtre, compare e encontre os produtos ideais para o seu cuidado diário.</p>
     </div>
-</div>
+</section>
 
 <div class="container">
     <!-- Barra de Busca -->
@@ -87,10 +87,10 @@
                         {% endif %}
                         <div class="card-body">
                             {% if produto.tem_promocao %}
-                                <span class="badge-promocao">PROMOÇÃO</span>
+                                <span class="badge-promocao">Promoção</span>
                             {% endif %}
                             {% if produto.destaque %}
-                                <span class="badge-destaque">DESTAQUE</span>
+                                <span class="badge-destaque">Destaque</span>
                             {% endif %}
                             <h3 class="card-title">{{ produto.nome }}</h3>
                             <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
@@ -111,7 +111,7 @@
                             {% endif %}
                             
                             <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
-                                Ver Detalhes
+                                Ver detalhes
                             </a>
                             {% if user.is_authenticated %}
                                 {% if produto.id in wishlist_ids %}
@@ -119,7 +119,7 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <button type="submit" class="btn btn-secondary btn-block">
-                                            Remover da Lista de Desejos
+                                            Remover da lista de desejos
                                         </button>
                                     </form>
                                 {% else %}
@@ -127,13 +127,13 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                         <button type="submit" class="btn btn-secondary btn-block">
-                                            Salvar na Lista de Desejos
+                                            Adicionar à lista de desejos
                                         </button>
                                     </form>
                                 {% endif %}
                             {% else %}
                                 <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
-                                    Entrar para salvar na lista
+                                    Entrar para favoritar
                                 </a>
                             {% endif %}
                         </div>
@@ -170,8 +170,8 @@
             {% else %}
                 <div class="empty-cart">
                     <h2>Nenhum produto encontrado</h2>
-                    <p>Tente ajustar seus filtros ou faça uma nova busca.</p>
-                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary">Ver Todos os Produtos</a>
+                    <p>Refine seus filtros ou pesquise novamente para encontrar o que procura.</p>
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary">Ver todos os produtos</a>
                 </div>
             {% endif %}
         </div>
