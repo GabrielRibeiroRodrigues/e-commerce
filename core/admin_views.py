@@ -1,6 +1,6 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
-from django.db.models import Count, Sum, Avg, F, Q, DecimalField
+from django.db.models import Count, Sum, Avg, F, Q, DecimalField, ExpressionWrapper
 from django.db.models.functions import TruncDate, TruncMonth, TruncWeek
 from django.utils import timezone
 from datetime import timedelta
@@ -102,10 +102,7 @@ def dashboard_admin(request):
             pedido__status__in=['processando', 'enviado', 'entregue']
         )
         .values('produto__nome')
-        .annotate(
-            quantidade=Sum('quantidade'),
-            receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
-        )
+        .annotate(quantidade=Sum('quantidade'))
         .order_by('-quantidade')[:10]
     )
     
@@ -115,10 +112,7 @@ def dashboard_admin(request):
             pedido__status__in=['processando', 'enviado', 'entregue']
         )
         .values('produto__categoria__nome')
-        .annotate(
-            total=Sum('quantidade'),
-            receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
-        )
+        .annotate(total=Sum('quantidade'))
         .order_by('-total')[:5]
     )
     
@@ -251,15 +245,14 @@ def relatorio_vendas(request):
         ticket_medio=Avg('total')
     )
     
-    # Produtos vendidos
+    # Produtos vendidos - calculamos receita depois
     produtos_vendidos = ItemPedido.objects.filter(
         pedido__in=pedidos
     ).values(
         'produto__nome', 'produto__categoria__nome'
     ).annotate(
-        quantidade=Sum('quantidade'),
-        receita=Sum(F('quantidade') * F('preco_unitario'), output_field=DecimalField())
-    ).order_by('-receita')
+        quantidade=Sum('quantidade')
+    ).order_by('-quantidade')
     
     context = {
         'ultimos_pedidos': pedidos.order_by('-criado_em')[:100],  # Últimos 100
@@ -280,10 +273,14 @@ def relatorio_vendas(request):
 def relatorio_estoque(request):
     """Relatório de estoque de produtos."""
     
-    # Produtos por situação de estoque
-    produtos_ok = Produto.objects.filter(ativo=True, estoque__gte=10)
-    produtos_baixo = Produto.objects.filter(ativo=True, estoque__lt=10, estoque__gt=0)
-    produtos_esgotado = Produto.objects.filter(ativo=True, estoque=0)
+    # Produtos por situação de estoque com valor calculado
+    produtos_ok = Produto.objects.filter(ativo=True, estoque__gte=10).select_related('categoria')
+    produtos_baixo = Produto.objects.filter(ativo=True, estoque__lt=10, estoque__gt=0).select_related('categoria')
+    produtos_esgotado = Produto.objects.filter(ativo=True, estoque=0).select_related('categoria')
+    
+    # Adicionar valor_estoque calculado a cada produto
+    for produto in produtos_ok:
+        produto.valor_estoque = produto.estoque * produto.preco
     
     # Produtos mais vendidos (para reposição)
     produtos_mais_vendidos = ItemPedido.objects.filter(
@@ -294,18 +291,17 @@ def relatorio_estoque(request):
         vendidos=Sum('quantidade')
     ).order_by('-vendidos')[:50]
     
-    # Valor total em estoque
-    valor_estoque = Produto.objects.filter(ativo=True).aggregate(
-        valor_total=Sum(F('estoque') * F('preco'), output_field=DecimalField())
-    )['valor_total'] or 0
+    # Valor total em estoque - calcular manualmente
+    produtos_ativos = Produto.objects.filter(ativo=True)
+    valor_estoque = sum(p.estoque * p.preco for p in produtos_ativos)
     
     context = {
-        'estoque_ok': produtos_ok.select_related('categoria'),
-        'estoque_baixo': produtos_baixo.select_related('categoria'),
-        'esgotados': produtos_esgotado.select_related('categoria'),
+        'estoque_ok': produtos_ok,
+        'estoque_baixo': produtos_baixo,
+        'esgotados': produtos_esgotado,
         'mais_vendidos': produtos_mais_vendidos,
         'valor_total_estoque': valor_estoque,
-        'total_produtos_ativos': Produto.objects.filter(ativo=True).count(),
+        'total_produtos_ativos': produtos_ativos.count(),
     }
     
     return render(request, 'admin/relatorio_estoque.html', context)

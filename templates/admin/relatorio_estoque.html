@@ -255,7 +255,7 @@ tr:hover {
                     <td>{{ produto.categoria.nome }}</td>
                     <td>{{ produto.estoque }} unidades</td>
                     <td>R$ {{ produto.preco|floatformat:2 }}</td>
-                    <td><strong>R$ {% widthratio produto.estoque 1 produto.preco|floatformat:2 %}</strong></td>
+                    <td><strong>R$ {{ produto.valor_estoque|floatformat:2 }}</strong></td>
                 </tr>
                 {% empty %}
                 <tr>
