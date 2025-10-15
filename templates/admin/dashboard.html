@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Administrativo - Farmácia QUEOPS{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.alert-banner {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.alert-danger { background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; }
+.alert-warning { background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; }
+.alert-info { background: rgba(23, 162, 184, 0.1); border-left: 4px solid #17a2b8; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="color: var(--brand-600); margin: 0 0 0.5rem;">
+                Dashboard Administrativo
+            </h1>
+            <p style="color: var(--neutral-600); margin: 0;">
+                Visão geral do sistema - {{ request.user.username }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'core:relatorio_vendas' %}" class="btn btn-primary">
+                Relatório de Vendas
+            </a>
+            <a href="{% url 'core:relatorio_estoque' %}" class="btn btn-secondary">
+                Relatório de Estoque
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    {% if alertas %}
+    <div style="margin-bottom: 2rem;">
+        {% for alerta in alertas %}
+        <div class="alert-{{ alerta.tipo }}">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <strong>{{ alerta.mensagem }}</strong>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Métricas Principais -->
+    <div class="dashboard-grid">
+        <!-- Vendas Totais -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            </div>
+            <div>
+                <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Vendas Totais</p>
+                <h2 style="margin: 0.25rem 0 0; color: var(--neutral-900); font-size: 1.8rem;">
+                    R$ {{ total_vendas|floatformat:2 }}
+                </h2>
+                <p style="margin: 0.5rem 0 0; color: #28a745; font-size: 0.85rem;">
+                    R$ {{ vendas_mes|floatformat:2 }} este mês
+                </p>
+            </div>
+        </div>
+
+        <!-- Pedidos -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+            </div>
+            <div>
+                <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Total de Pedidos</p>
+                <h2 style="margin: 0.25rem 0 0; color: var(--neutral-900); font-size: 1.8rem;">
+                    {{ total_pedidos }}
+                </h2>
+                <p style="margin: 0.5rem 0 0; color: #007bff; font-size: 0.85rem;">
+                    {{ pedidos_pendentes }} pendentes
+                </p>
+            </div>
+        </div>
+
+        <!-- Usuários -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div>
+                <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Usuários Cadastrados</p>
+                <h2 style="margin: 0.25rem 0 0; color: var(--neutral-900); font-size: 1.8rem;">
+                    {{ total_usuarios }}
+                </h2>
+                <p style="margin: 0.5rem 0 0; color: #6610f2; font-size: 0.85rem;">
+                    {{ usuarios_mes }} novos este mês
+                </p>
+            </div>
+        </div>
+
+        <!-- Ticket Médio -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+            </div>
+            <div>
+                <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem;">Ticket Médio</p>
+                <h2 style="margin: 0.25rem 0 0; color: var(--neutral-900); font-size: 1.8rem;">
+                    R$ {{ ticket_medio|floatformat:2 }}
+                </h2>
+                <p style="margin: 0.5rem 0 0; color: #ffc107; font-size: 0.85rem;">
+                    Taxa conversão: {{ taxa_conversao }}%
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+        <!-- Vendas por Dia -->
+        <div class="chart-container">
+            <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Vendas dos Últimos 30 Dias</h3>
+            <canvas id="vendasChart" height="250"></canvas>
+        </div>
+
+        <!-- Pedidos por Status -->
+        <div class="chart-container">
+            <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Pedidos por Status</h3>
+            <canvas id="statusChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- Produtos Mais Vendidos -->
+    <div class="chart-container">
+        <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Top 10 Produtos Mais Vendidos</h3>
+        <canvas id="produtosChart" height="150"></canvas>
+    </div>
+
+    <!-- Métricas Adicionais -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div class="stat-card" style="text-align: center;">
+            <h4 style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">Avaliações</h4>
+            <p style="margin: 0; font-size: 2rem; font-weight: bold; color: var(--brand-600);">{{ total_avaliacoes }}</p>
+            <p style="margin: 0.25rem 0 0; color: #ffc107; font-size: 1.2rem;">★ {{ media_avaliacoes }}</p>
+        </div>
+        
+        <div class="stat-card" style="text-align: center;">
+            <h4 style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">Produtos Ativos</h4>
+            <p style="margin: 0; font-size: 2rem; font-weight: bold; color: var(--brand-600);">{{ total_produtos }}</p>
+            <p style="margin: 0.25rem 0 0; color: var(--neutral-600); font-size: 0.85rem;">{{ produtos_estoque_baixo }} estoque baixo</p>
+        </div>
+        
+        <div class="stat-card" style="text-align: center;">
+            <h4 style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">Usuários Ativos (7d)</h4>
+            <p style="margin: 0; font-size: 2rem; font-weight: bold; color: var(--brand-600);">{{ usuarios_ativos_7dias }}</p>
+            <p style="margin: 0.25rem 0 0; color: var(--neutral-600); font-size: 0.85rem;">de {{ total_usuarios }} total</p>
+        </div>
+        
+        <div class="stat-card" style="text-align: center;">
+            <h4 style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">LGPD</h4>
+            <p style="margin: 0; font-size: 2rem; font-weight: bold; color: var(--brand-600);">{{ consentimentos_ativos }}</p>
+            <p style="margin: 0.25rem 0 0; color: var(--neutral-600); font-size: 0.85rem;">consentimentos ativos</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Dados dos gráficos
+const vendasData = {{ vendas_por_dia_json|safe }};
+const statusData = {{ pedidos_por_status_json|safe }};
+const produtosData = {{ produtos_mais_vendidos_json|safe }};
+
+// Gráfico de Vendas
+const ctxVendas = document.getElementById('vendasChart').getContext('2d');
+new Chart(ctxVendas, {
+    type: 'line',
+    data: {
+        labels: vendasData.map(d => new Date(d.data).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'})),
+        datasets: [{
+            label: 'Vendas (R$)',
+            data: vendasData.map(d => d.total),
+            borderColor: '#1e8050',
+            backgroundColor: 'rgba(30, 128, 80, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// Gráfico de Status
+const ctxStatus = document.getElementById('statusChart').getContext('2d');
+new Chart(ctxStatus, {
+    type: 'doughnut',
+    data: {
+        labels: statusData.map(d => d.status),
+        datasets: [{
+            data: statusData.map(d => d.total),
+            backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545', '#6c757d']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Gráfico de Produtos
+const ctxProdutos = document.getElementById('produtosChart').getContext('2d');
+new Chart(ctxProdutos, {
+    type: 'bar',
+    data: {
+        labels: produtosData.map(d => d.produto__nome),
+        datasets: [{
+            label: 'Quantidade Vendida',
+            data: produtosData.map(d => d.quantidade),
+            backgroundColor: '#1e8050'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+</script>
+{% endblock %}
