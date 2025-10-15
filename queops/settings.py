@@ -10,11 +10,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import importlib
 import os
 from pathlib import Path
 
+def _load_dotenv_factory():
+    """Carrega função load_dotenv se o pacote python-dotenv estiver instalado."""
+
+    spec = importlib.util.find_spec('dotenv')
+    if spec is None:
+        return lambda *args, **kwargs: None
+
+    dotenv_module = importlib.import_module('dotenv')
+    return getattr(dotenv_module, 'load_dotenv', lambda *args, **kwargs: None)
+
+
+load_dotenv = _load_dotenv_factory()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega variáveis de ambiente definidas no arquivo .env (se existir)
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -141,5 +158,5 @@ LOGOUT_REDIRECT_URL = 'core:home'
 
 # Login Social (Google)
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
-GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+ = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 GOOGLE_OAUTH_SCOPE = 'openid email profile'

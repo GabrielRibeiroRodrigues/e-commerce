@@ -67,7 +67,7 @@ source venv/bin/activate  # Linux/Mac
 
 ### 3. Instale as dependências
 ```bash
-pip install django pillow
+pip install django pillow python-dotenv
 ```
 
 ### 4. Execute as migrações
@@ -112,6 +112,8 @@ http://localhost:8000/usuarios/login/google/callback/
 ```
 
 Com os dados definidos, o botão "Entrar com Google" aparecerá automaticamente na tela de login.
+
+> Dica: você pode criar um arquivo `.env` na raiz do projeto contendo `GOOGLE_CLIENT_ID=` e `GOOGLE_CLIENT_SECRET=`. O Django carregará esses valores automaticamente quando o servidor iniciar.
 
 ## 🔐 Credenciais de Acesso
 
