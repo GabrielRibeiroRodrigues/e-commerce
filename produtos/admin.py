@@ -46,3 +46,8 @@ class ProdutoAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+    def get_queryset(self, request):
+        """Otimiza queries do admin."""
+        qs = super().get_queryset(request)
+        return qs.select_related('categoria')

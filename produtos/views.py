@@ -7,8 +7,8 @@ from usuarios.models import ListaDesejo
 
 def lista_produtos(request):
     """View para listagem de produtos com filtros e busca."""
-    produtos = Produto.objects.filter(ativo=True)
-    categorias = Categoria.objects.all()
+    produtos = Produto.objects.filter(ativo=True).select_related('categoria')
+    categorias = Categoria.objects.all().order_by('nome')
     
     # Filtro por categoria
     categoria_slug = request.GET.get('categoria')
@@ -52,13 +52,17 @@ def lista_produtos(request):
 
 def detalhe_produto(request, slug):
     """View para detalhes de um produto."""
-    produto = get_object_or_404(Produto, slug=slug, ativo=True)
+    produto = get_object_or_404(
+        Produto.objects.select_related('categoria'),
+        slug=slug,
+        ativo=True
+    )
     
     # Produtos relacionados (mesma categoria)
     produtos_relacionados = Produto.objects.filter(
         categoria=produto.categoria,
         ativo=True
-    ).exclude(id=produto.id)[:4]
+    ).select_related('categoria').exclude(id=produto.id)[:4]
     
     em_lista_desejos = False
     if request.user.is_authenticated:

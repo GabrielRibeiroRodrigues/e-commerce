@@ -8,13 +8,13 @@ def home(request):
     produtos_destaque = Produto.objects.filter(
         ativo=True, 
         destaque=True
-    )[:6]
+    ).select_related('categoria')[:6]
     
     # Produtos em promoção
     produtos_promocao = Produto.objects.filter(
         ativo=True,
         preco_promocional__isnull=False
-    )[:6]
+    ).select_related('categoria')[:6]
     
     context = {
         'produtos_destaque': produtos_destaque,

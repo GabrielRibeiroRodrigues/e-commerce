@@ -265,6 +265,7 @@ def perfil(request):
     pedidos_queryset = (
         Pedido.objects.filter(usuario=request.user)
         .select_related('pagamento')
+        .prefetch_related('itens__produto')
         .order_by('-criado_em')
     )
 

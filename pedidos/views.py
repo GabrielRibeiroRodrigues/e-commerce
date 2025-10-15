@@ -392,7 +392,11 @@ def checkout(request):
 @login_required
 def confirmacao(request, pedido_id):
     """View para confirmação de pedido."""
-    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    pedido = get_object_or_404(
+        Pedido.objects.select_related('pagamento').prefetch_related('itens__produto'),
+        id=pedido_id,
+        usuario=request.user
+    )
     try:
         pagamento = pedido.pagamento
     except Pagamento.DoesNotExist:

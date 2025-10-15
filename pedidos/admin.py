@@ -54,6 +54,11 @@ class PedidoAdmin(admin.ModelAdmin):
             'fields': ('criado_em', 'atualizado_em')
         }),
     )
+    
+    def get_queryset(self, request):
+        """Otimiza queries do admin."""
+        qs = super().get_queryset(request)
+        return qs.select_related('usuario').prefetch_related('itens__produto', 'pagamento')
 
 
 @admin.register(Pagamento)
