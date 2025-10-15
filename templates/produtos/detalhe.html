@@ -4,356 +4,754 @@
 {% block title %}{{ produto.nome }} - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 2rem;">
-    <!-- Breadcrumb -->
-    <nav style="margin-bottom: 2rem; color: var(--cinza-escuro);">
-        <a href="{% url 'core:home' %}" style="color: var(--verde-principal);">Home</a> / 
-        <a href="{% url 'produtos:lista' %}" style="color: var(--verde-principal);">Produtos</a> / 
-        <a href="?categoria={{ produto.categoria.slug }}" style="color: var(--verde-principal);">{{ produto.categoria.nome }}</a> / 
-        <span>{{ produto.nome }}</span>
-    </nav>
+<!-- Breadcrumb Profissional -->
+<div class="breadcrumb-bar">
+    <div class="container">
+        <nav class="breadcrumb-professional">
+            <a href="{% url 'core:home' %}" class="breadcrumb-item">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 6l6-4 6 4v7a1 1 0 01-1 1H3a1 1 0 01-1-1V6z" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Início</span>
+            </a>
+            <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16">
+                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <a href="{% url 'produtos:lista' %}" class="breadcrumb-item">Produtos</a>
+            <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16">
+                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <a href="?categoria={{ produto.categoria.slug }}" class="breadcrumb-item">{{ produto.categoria.nome }}</a>
+            <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 16 16">
+                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span class="breadcrumb-current">{{ produto.nome|truncatewords:5 }}</span>
+        </nav>
+    </div>
+</div>
 
-    <!-- Detalhes do Produto -->
-    <div class="produto-detalhe">
-        <!-- Imagem -->
-        <div>
-            {% if produto.imagem %}
-                <img src="{{ produto.imagem_detalhe.url }}" alt="{{ produto.nome }}" loading="eager">
-            {% else %}
-                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" loading="eager">
-            {% endif %}
+<div class="container product-detail-wrapper">
+
+    <!-- Layout Principal do Produto -->
+    <div class="product-detail-grid">
+        <!-- Galeria de Imagem -->
+        <div class="product-gallery-section">
+            <div class="product-main-image">
+                {% if produto.imagem %}
+                    <img src="{{ produto.imagem_detalhe.url }}" alt="{{ produto.nome }}" class="product-image-large" loading="eager">
+                {% else %}
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="product-image-large" loading="eager">
+                {% endif %}
+                
+                <!-- Badges sobre a imagem -->
+                {% if produto.tem_promocao or produto.destaque %}
+                <div class="product-image-badges">
+                    {% if produto.tem_promocao %}
+                        <span class="badge-detail badge-sale">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M7 1l1.5 3 3 .5-2.5 2.5.5 3-2.5-1.5-2.5 1.5.5-3L2 4.5l3-.5L7 1z" fill="currentColor"/>
+                            </svg>
+                            Promoção
+                        </span>
+                    {% endif %}
+                    {% if produto.destaque %}
+                        <span class="badge-detail badge-featured">Destaque</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Zoom Indicator -->
+                <div class="zoom-indicator">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                        <path d="M13 13l5 5M8 5v6M5 8h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Clique para ampliar</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Informações -->
-        <div>
-            <h1 style="color: var(--verde-principal); margin-bottom: 1rem;">
-                {{ produto.nome }}
-            </h1>
+        <!-- Informações do Produto -->
+        <div class="product-info-section">
+            <!-- Cabeçalho -->
+            <div class="product-header-detail">
+                <div class="product-title-row">
+                    <h1 class="product-title-detail">{{ produto.nome }}</h1>
+                    
+                    <!-- Wishlist -->
+                    {% if user.is_authenticated %}
+                        {% if em_lista_desejos %}
+                            <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" class="wishlist-form-detail">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn-wishlist-detail active" title="Remover dos favoritos">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" class="wishlist-form-detail">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button type="submit" class="btn-wishlist-detail" title="Adicionar aos favoritos">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
 
-            <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <span style="background-color: var(--surface-strong); padding: 0.5rem 1rem; border-radius: 5px; display: inline-block; color: var(--neutral-700); font-size: 0.9rem;">
-                    {{ produto.categoria.nome }}
-                </span>
-                {% if produto.destaque %}
-                    <span class="badge-destaque">DESTAQUE</span>
-                {% endif %}
-                {% if produto.tem_promocao %}
-                    <span class="badge-promocao">PROMOÇÃO</span>
-                {% endif %}
+                <div class="product-meta-detail">
+                    <span class="category-badge-detail">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M2 4h12M4 4V2h8v2M2 4v10h12V4" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        {{ produto.categoria.nome }}
+                    </span>
+                </div>
             </div>
 
-            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                <p style="font-size: 1.1rem; line-height: 1.8; color: var(--cinza-escuro);">
-                    {{ produto.descricao }}
-                </p>
+            <!-- Descrição Curta -->
+            <div class="product-description-short">
+                <p>{{ produto.descricao }}</p>
             </div>
 
-            <!-- Preço -->
-            <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <!-- Pricing Card -->
+            <div class="pricing-card-detail">
                 {% if produto.tem_promocao %}
-                    <div style="margin-bottom: 0.5rem;">
-                        <span class="preco-antigo" style="font-size: 1.2rem;">De: R$ {{ produto.preco }}</span>
+                    <div class="price-from">
+                        <span class="from-label">De:</span>
+                        <span class="from-price">R$ {{ produto.preco }}</span>
                     </div>
-                    <div class="preco preco-promocional" style="font-size: 2rem;">
-                        Por: R$ {{ produto.preco_promocional }}
+                    <div class="price-current sale">
+                        <span class="for-label">Por:</span>
+                        <span class="current-value">R$ {{ produto.preco_promocional }}</span>
                     </div>
-                    <p style="color: var(--verde-principal); font-weight: bold; margin-top: 0.5rem;">
-                        Economize: R$ {{ produto.preco|floatformat:2|add:produto.preco_promocional|floatformat:2 }}
-                    </p>
+                    <div class="savings-badge">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2l1.5 3 3 .5-2.5 2.5.5 3-2.5-1.5-2.5 1.5.5-3L3 5.5l3-.5L8 2z" fill="currentColor"/>
+                        </svg>
+                        Economize R$ {{ produto.preco|floatformat:2|add:produto.preco_promocional|floatformat:2 }}
+                    </div>
                 {% else %}
-                    <div class="preco" style="font-size: 2rem;">
-                        R$ {{ produto.preco }}
+                    <div class="price-current">
+                        <span class="current-value">R$ {{ produto.preco }}</span>
                     </div>
                 {% endif %}
+
+                <!-- Parcelamento -->
+                <div class="installments-info">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <rect x="2" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M2 7h14M5 11h3" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Em até 12x sem juros no cartão</span>
+                </div>
             </div>
 
-            <!-- Estoque -->
-            <div style="margin-bottom: 1.5rem;">
+            <!-- Stock Status -->
+            <div class="stock-status-detail">
                 {% if produto.estoque > 0 %}
                     {% if produto.estoque < 10 %}
-                        <p class="estoque-info estoque-baixo" style="font-size: 1rem; padding: 0.75rem; background-color: rgba(192, 57, 43, 0.08); border-left: 3px solid var(--accent-danger); border-radius: 6px;">
-                            <strong>Estoque limitado:</strong> Apenas {{ produto.estoque }} unidades disponíveis
-                        </p>
+                        <div class="stock-alert low">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 6v4m0 4h.01M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div class="stock-text">
+                                <strong>Últimas unidades!</strong>
+                                <span>Apenas {{ produto.estoque }} disponíveis</span>
+                            </div>
+                        </div>
                     {% else %}
-                        <p class="estoque-info" style="font-size: 1rem; padding: 0.75rem; background-color: var(--brand-050); border-left: 3px solid var(--brand-500); border-radius: 6px;">
-                            <strong>Em estoque:</strong> {{ produto.estoque }} unidades disponíveis
-                        </p>
+                        <div class="stock-alert available">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7 10l2 2 4-4m5 2a8 8 0 11-16 0 8 8 0 0116 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <div class="stock-text">
+                                <strong>Em estoque</strong>
+                                <span>{{ produto.estoque }} unidades disponíveis</span>
+                            </div>
+                        </div>
                     {% endif %}
                 {% else %}
-                    <p class="estoque-info estoque-baixo" style="font-size: 1rem; padding: 0.75rem; background-color: rgba(192, 57, 43, 0.08); border-left: 3px solid var(--accent-danger); border-radius: 6px;">
-                        <strong>Produto indisponível</strong>
-                    </p>
+                    <div class="stock-alert unavailable">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M6 6l8 8m0-8l-8 8m12-4a8 8 0 11-16 0 8 8 0 0116 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <div class="stock-text">
+                            <strong>Produto indisponível</strong>
+                            <span>Sem previsão de reposição</span>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
 
-            <!-- Botão Adicionar ao Carrinho -->
+            <!-- Purchase Form -->
             {% if produto.estoque > 0 %}
-                <form action="{% url 'pedidos:adicionar_carrinho' produto.id %}" method="post" style="margin-bottom: 1rem;">
+                <form action="{% url 'pedidos:adicionar_carrinho' produto.id %}" method="post" class="purchase-form-detail">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
-                        <label for="quantidade" style="font-weight: bold;">Quantidade:</label>
-                        <input 
-                            type="number" 
-                            name="quantidade" 
-                            id="quantidade" 
-                            value="1" 
-                            min="1" 
-                            max="{{ produto.estoque }}"
-                            style="width: 100px; padding: 0.5rem; border: 1px solid var(--cinza-medio); border-radius: 5px;"
-                        >
+                    
+                    <!-- Quantity Selector -->
+                    <div class="quantity-selector-detail">
+                        <label for="quantidade" class="quantity-label">Quantidade:</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="qty-btn qty-minus" onclick="decrementQty()">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                            <input 
+                                type="number" 
+                                name="quantidade" 
+                                id="quantidade" 
+                                value="1" 
+                                min="1" 
+                                max="{{ produto.estoque }}"
+                                class="qty-input"
+                                readonly
+                            >
+                            <button type="button" class="qty-btn qty-plus" onclick="incrementQty()">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block" style="font-size: 1.1rem; padding: 1rem;">
-                        Adicionar ao Carrinho
+                    
+                    <!-- Add to Cart Button -->
+                    <button type="submit" class="btn-add-cart-detail">
+                        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                            <path d="M8 20a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2zM2 2h2l.4 2m0 0l2.8 11h10.4l3.2-8H5.2L4.6 4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Adicionar ao Carrinho</span>
                     </button>
                 </form>
             {% else %}
-                <button class="btn btn-secondary btn-block" disabled style="font-size: 1.2rem; padding: 1rem;">
-                    Produto Indisponível
+                <button class="btn-unavailable-detail" disabled>
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path d="M6 6l10 10m0-10L6 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Produto Indisponível</span>
                 </button>
             {% endif %}
 
-            {% if user.is_authenticated %}
-                {% if em_lista_desejos %}
-                    <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" style="margin-bottom: 1rem;">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button type="submit" class="btn btn-secondary btn-block">
-                            Remover da Lista de Desejos
-                        </button>
-                    </form>
-                {% else %}
-                    <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" style="margin-bottom: 1rem;">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <button type="submit" class="btn btn-secondary btn-block">
-                            Adicionar à Lista de Desejos
-                        </button>
-                    </form>
-                {% endif %}
-            {% else %}
-                <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-secondary btn-block" style="margin-bottom: 1rem;">
-                    Faça login para adicionar aos favoritos
-                </a>
+            <!-- Additional Actions (Wishlist if not authenticated) -->
+            {% if user.is_authenticated and not em_lista_desejos %}
+                <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" class="wishlist-secondary-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="btn-wishlist-secondary">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 18l-1.45-1.32C4.4 13.36 2 10.28 2 6.5 2 3.42 4.42 1 7.5 1c1.74 0 3.41.81 4.5 2.09C13.09 1.81 14.76 1 16.5 1 19.58 1 22 3.42 22 6.5c0 3.78-3.4 6.86-8.55 11.18L10 18z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Adicionar aos Favoritos</span>
+                    </button>
+                </form>
+            {% elif user.is_authenticated and em_lista_desejos %}
+                <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" class="wishlist-secondary-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="btn-wishlist-secondary active">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 18l-1.45-1.32C4.4 13.36 2 10.28 2 6.5 2 3.42 4.42 1 7.5 1c1.74 0 3.41.81 4.5 2.09C13.09 1.81 14.76 1 16.5 1 19.58 1 22 3.42 22 6.5c0 3.78-3.4 6.86-8.55 11.18L10 18z"/>
+                        </svg>
+                        <span>Remover dos Favoritos</span>
+                    </button>
+                </form>
             {% endif %}
 
-            <a href="{% url 'produtos:lista' %}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
-                ← Voltar para Produtos
+            <!-- Trust Badges -->
+            <div class="trust-badges-detail">
+                <div class="trust-badge-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div class="trust-text">
+                        <strong>Compra Segura</strong>
+                        <span>Site protegido</span>
+                    </div>
+                </div>
+                <div class="trust-badge-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4m16 0v12a2 2 0 01-2 2H6a2 2 0 01-2-2V7h16z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <div class="trust-text">
+                        <strong>Frete Grátis</strong>
+                        <span>Acima de R$ 150</span>
+                    </div>
+                </div>
+                <div class="trust-badge-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3v-6a3 3 0 00-3-3H6a3 3 0 00-3 3v6a3 3 0 003 3z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <div class="trust-text">
+                        <strong>Parcele em até 12x</strong>
+                        <span>Sem juros no cartão</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <a href="{% url 'produtos:lista' %}" class="btn-back-detail">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M7 13l-5-5 5-5M2 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Voltar para Produtos</span>
             </a>
         </div>
     </div>
 
-    <!-- Avaliações do Produto -->
-    <section style="margin-top: 4rem; margin-bottom: 3rem;">
-        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
-            Avaliações dos Clientes
-        </h2>
-
-        <!-- Média de Avaliações -->
-        {% if produto.total_avaliacoes > 0 %}
-        <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; font-weight: bold; color: var(--verde-principal);">
-                    {{ produto.media_avaliacoes|floatformat:1 }}
-                </div>
-                <div style="color: var(--amarelo); font-size: 1.5rem;">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= produto.media_avaliacoes %}
-                            ★
-                        {% else %}
-                            ☆
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                <div style="color: var(--cinza-escuro); margin-top: 0.5rem;">
-                    {{ produto.total_avaliacoes }} avaliação{{ produto.total_avaliacoes|pluralize:"ões" }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Formulário de Avaliação -->
-        {% if user.is_authenticated %}
-            {% if not ja_avaliou %}
-            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--cinza-medio);">
-                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">Avaliar este produto</h3>
-                <form action="{% url 'produtos:adicionar_avaliacao' produto.id %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    
-                    <div style="margin-bottom: 1rem;">
-                        <label for="rating" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">Nota:</label>
-                        <div style="display: flex; gap: 0.5rem; font-size: 2rem; color: var(--amarelo);">
-                            {% for i in "12345" %}
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="{{ forloop.counter }}" required style="display: none;" class="rating-input">
-                                <span class="rating-star">☆</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 1rem;">
-                        <label for="comentario" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">Comentário:</label>
-                        <textarea 
-                            name="comentario" 
-                            id="comentario" 
-                            rows="4" 
-                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--cinza-medio); border-radius: 5px; font-family: inherit;"
-                            placeholder="Compartilhe sua experiência com este produto..."
-                        ></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">
-                        Enviar Avaliação
-                    </button>
-                </form>
-            </div>
-            {% else %}
-            <div style="background-color: var(--brand-050); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 3px solid var(--brand-500);">
-                <p style="color: var(--cinza-escuro);">Você já avaliou este produto. Obrigado pelo seu feedback!</p>
-            </div>
-            {% endif %}
-        {% else %}
-        <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center;">
-            <p style="margin-bottom: 1rem;">Faça login para avaliar este produto</p>
-            <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-primary">
-                Fazer Login
-            </a>
-        </div>
-        {% endif %}
-
-        <!-- Lista de Avaliações -->
-        {% if avaliacoes %}
-        <div>
-            <h3 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
-                Todas as Avaliações ({{ avaliacoes|length }})
-            </h3>
-            {% for avaliacao in avaliacoes %}
-            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--cinza-medio);">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                    <div>
-                        <div style="font-weight: bold; color: var(--verde-principal);">
-                            {{ avaliacao.usuario.first_name|default:avaliacao.usuario.username }}
-                        </div>
-                        <div style="color: var(--amarelo); font-size: 1.2rem;">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= avaliacao.rating %}
-                                    ★
-                                {% else %}
-                                    ☆
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div style="color: var(--cinza-escuro); font-size: 0.9rem;">
-                        {{ avaliacao.criado_em|date:"d/m/Y" }}
-                    </div>
-                </div>
-                {% if avaliacao.comentario %}
-                <p style="color: var(--cinza-escuro); line-height: 1.6;">
-                    {{ avaliacao.comentario }}
-                </p>
+    <!-- Product Tabs Section -->
+    <div class="product-tabs-section">
+        <!-- Tab Navigation -->
+        <div class="tabs-navigation">
+            <button class="tab-button active" data-tab="description">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 5h12M4 10h12M4 15h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Descrição</span>
+            </button>
+            <button class="tab-button" data-tab="reviews">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 1l2.5 5 5.5.5-4 4 1 5.5-5-2.5-5 2.5 1-5.5-4-4 5.5-.5L10 1z" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <span>Avaliações</span>
+                {% if produto.total_avaliacoes > 0 %}
+                    <span class="tab-counter">({{ produto.total_avaliacoes }})</span>
                 {% endif %}
-            </div>
-            {% endfor %}
+            </button>
+            <button class="tab-button" data-tab="info">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+                    <path d="M10 10v4m0-6h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Informações</span>
+            </button>
         </div>
-        {% elif produto.total_avaliacoes == 0 %}
-        <div style="background-color: var(--cinza-claro); padding: 2rem; border-radius: 8px; text-align: center; color: var(--cinza-escuro);">
-            <p style="font-size: 1.1rem;">Este produto ainda não possui avaliações.</p>
-            {% if user.is_authenticated %}
-            <p style="margin-top: 0.5rem;">Seja o primeiro a avaliar!</p>
-            {% endif %}
-        </div>
-        {% endif %}
-    </section>
 
-    <!-- Produtos Relacionados -->
-    {% if produtos_relacionados %}
-    <section style="margin-top: 4rem; margin-bottom: 3rem;">
-        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
-            Produtos Relacionados
-        </h2>
-        <div class="produtos-grid">
-            {% for prod in produtos_relacionados %}
-            <div class="card">
-                {% if prod.imagem %}
-                    <img src="{{ prod.thumbnail.url }}" alt="{{ prod.nome }}" class="card-img" loading="lazy">
-                {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ prod.nome }}" class="card-img" loading="lazy">
+        <!-- Tab Content -->
+        <div class="tabs-content">
+            <!-- Description Tab -->
+            <div class="tab-panel active" id="description-panel">
+                <div class="description-content">
+                    <h3>Sobre o Produto</h3>
+                    <div class="description-text">
+                        {{ produto.descricao_completa|default:produto.descricao|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-panel" id="reviews-panel">
+                {% if produto.total_avaliacoes > 0 %}
+                    <!-- Rating Summary -->
+                    <div class="rating-summary-card">
+                        <div class="rating-score-section">
+                            <div class="rating-number">{{ produto.media_avaliacoes|floatformat:1 }}</div>
+                            <div class="rating-stars-large">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= produto.media_avaliacoes %}
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFC107">
+                                            <path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 9l6-1 3-6z"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#E0E0E0">
+                                            <path d="M12 2l3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 9l6-1 3-6z"/>
+                                        </svg>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="rating-count">{{ produto.total_avaliacoes }} avaliação{{ produto.total_avaliacoes|pluralize:"ões" }}</p>
+                        </div>
+                    </div>
                 {% endif %}
-                <div class="card-body">
-                    {% if prod.tem_promocao %}
-                        <span class="badge-promocao">PROMOÇÃO</span>
-                    {% endif %}
-                    <h3 class="card-title">{{ prod.nome }}</h3>
-                    <p class="card-text">{{ prod.descricao|truncatewords:10 }}</p>
-                    
-                    {% if prod.tem_promocao %}
-                        <div>
-                            <span class="preco-antigo">R$ {{ prod.preco }}</span>
-                            <div class="preco preco-promocional">R$ {{ prod.preco_promocional }}</div>
+
+                <!-- Review Form -->
+                {% if user.is_authenticated %}
+                    {% if not ja_avaliou %}
+                        <div class="review-form-card">
+                            <h3>Avaliar Produto</h3>
+                            <form action="{% url 'produtos:adicionar_avaliacao' produto.id %}" method="post" class="review-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                
+                                <div class="form-group-detail">
+                                    <label class="form-label-detail">Sua avaliação:</label>
+                                    <div class="rating-input-group">
+                                        {% for i in "12345" %}
+                                            <label class="rating-star-label">
+                                                <input type="radio" name="rating" value="{{ forloop.counter }}" required class="rating-input">
+                                                <svg class="rating-star-svg" width="32" height="32" viewBox="0 0 32 32">
+                                                    <path d="M16 4l3.5 7 7.5 1-5.5 5.5 1.5 7.5-7-3.5-7 3.5 1.5-7.5L4 12l7.5-1L16 4z"/>
+                                                </svg>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-detail">
+                                    <label for="comentario" class="form-label-detail">Seu comentário:</label>
+                                    <textarea 
+                                        name="comentario" 
+                                        id="comentario" 
+                                        rows="4" 
+                                        class="form-textarea-detail"
+                                        placeholder="Compartilhe sua experiência com este produto..."
+                                    ></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn-submit-review">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M18 10l-8 8-8-8M10 18V2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span>Enviar Avaliação</span>
+                                </button>
+                            </form>
                         </div>
                     {% else %}
-                        <div class="preco">R$ {{ prod.preco }}</div>
+                        <div class="review-success-alert">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 12l2 2 4-4m5 2a8 8 0 11-16 0 8 8 0 0116 0z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <p>Você já avaliou este produto. Obrigado pelo seu feedback!</p>
+                        </div>
                     {% endif %}
-                    
-                    <a href="{% url 'produtos:detalhe' prod.slug %}" class="btn btn-primary btn-block">
-                        Ver Detalhes
-                    </a>
+                {% else %}
+                    <div class="review-login-card">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
+                            <path d="M24 14v10m0 4h.02" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h4>Faça login para avaliar</h4>
+                        <p>Entre na sua conta para compartilhar sua opinião sobre este produto</p>
+                        <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn-login-review">
+                            Fazer Login
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Reviews List -->
+                {% if avaliacoes %}
+                    <div class="reviews-list">
+                        <h3 class="reviews-list-title">Todas as Avaliações ({{ avaliacoes|length }})</h3>
+                        {% for avaliacao in avaliacoes %}
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <div class="review-user-info">
+                                        <div class="review-avatar">
+                                            {{ avaliacao.usuario.first_name|default:avaliacao.usuario.username|slice:":1"|upper }}
+                                        </div>
+                                        <div class="review-user-details">
+                                            <div class="review-user-name">
+                                                {{ avaliacao.usuario.first_name|default:avaliacao.usuario.username }}
+                                            </div>
+                                            <div class="review-stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= avaliacao.rating %}
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="#FFC107">
+                                                            <path d="M8 1l2 4 4 .5-3 3 .5 4-3.5-2-3.5 2 .5-4-3-3 4-.5 2-4z"/>
+                                                        </svg>
+                                                    {% else %}
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="#E0E0E0">
+                                                            <path d="M8 1l2 4 4 .5-3 3 .5 4-3.5-2-3.5 2 .5-4-3-3 4-.5 2-4z"/>
+                                                        </svg>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="review-date">
+                                        {{ avaliacao.criado_em|date:"d/m/Y" }}
+                                    </div>
+                                </div>
+                                {% if avaliacao.comentario %}
+                                    <p class="review-comment">{{ avaliacao.comentario }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif produto.total_avaliacoes == 0 %}
+                    <div class="no-reviews-card">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <path d="M32 8l6 12 12 2-9 9 2 12-11-6-11 6 2-12-9-9 12-2 6-12z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <h4>Nenhuma avaliação ainda</h4>
+                        <p>Este produto ainda não possui avaliações.</p>
+                        {% if user.is_authenticated %}
+                            <p class="no-reviews-cta">Seja o primeiro a avaliar!</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Info Tab -->
+            <div class="tab-panel" id="info-panel">
+                <div class="info-content">
+                    <h3>Informações do Produto</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Categoria:</span>
+                            <span class="info-value">{{ produto.categoria.nome }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Disponibilidade:</span>
+                            <span class="info-value">
+                                {% if produto.estoque > 0 %}
+                                    <span class="badge-stock in-stock">Em estoque</span>
+                                {% else %}
+                                    <span class="badge-stock out-stock">Indisponível</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if produto.destaque %}
+                            <div class="info-item">
+                                <span class="info-label">Destaque:</span>
+                                <span class="info-value"><span class="badge-stock featured">Produto em Destaque</span></span>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Related Products Section -->
+    {% if produtos_relacionados %}
+    <div class="related-products-section">
+        <div class="related-header">
+            <h2 class="related-title">Produtos Relacionados</h2>
+            <p class="related-subtitle">Clientes que viram este produto também se interessaram por</p>
+        </div>
+        
+        <div class="related-products-grid">
+            {% for prod in produtos_relacionados %}
+                <div class="related-product-card">
+                    <a href="{% url 'produtos:detalhe' prod.slug %}" class="related-product-link">
+                        <div class="related-product-image">
+                            {% if prod.imagem %}
+                                <img src="{{ prod.thumbnail.url }}" alt="{{ prod.nome }}" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ prod.nome }}" loading="lazy">
+                            {% endif %}
+                            
+                            <!-- Badges -->
+                            {% if prod.tem_promocao or prod.destaque %}
+                                <div class="related-badges">
+                                    {% if prod.tem_promocao %}
+                                        <span class="related-badge sale-badge">Promoção</span>
+                                    {% endif %}
+                                    {% if prod.destaque %}
+                                        <span class="related-badge featured-badge">Destaque</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="related-product-info">
+                            <h3 class="related-product-name">{{ prod.nome }}</h3>
+                            
+                            <div class="related-product-pricing">
+                                {% if prod.tem_promocao %}
+                                    <span class="related-price-from">R$ {{ prod.preco }}</span>
+                                    <span class="related-price-current sale">R$ {{ prod.preco_promocional }}</span>
+                                {% else %}
+                                    <span class="related-price-current">R$ {{ prod.preco }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="related-product-footer">
+                                <span class="related-view-btn">
+                                    Ver Detalhes
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             {% endfor %}
         </div>
-    </section>
+    </div>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Sistema de avaliação com estrelas interativas
 document.addEventListener('DOMContentLoaded', function() {
-    const ratingInputs = document.querySelectorAll('.rating-input');
-    const ratingStars = document.querySelectorAll('.rating-star');
+    // ====== TAB SYSTEM ======
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanels = document.querySelectorAll('.tab-panel');
     
-    // Hover effect
-    ratingStars.forEach((star, index) => {
-        star.addEventListener('mouseenter', function() {
-            highlightStars(index);
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Remove active class from all buttons and panels
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.remove('active'));
+            
+            // Add active class to clicked button and target panel
+            this.classList.add('active');
+            document.getElementById(targetTab + '-panel').classList.add('active');
+        });
+    });
+    
+    // ====== QUANTITY CONTROLS ======
+    const qtyInput = document.getElementById('quantidade');
+    const maxQty = qtyInput ? parseInt(qtyInput.getAttribute('max')) : 1;
+    const minQty = qtyInput ? parseInt(qtyInput.getAttribute('min')) : 1;
+    
+    window.incrementQty = function() {
+        if (qtyInput) {
+            let currentValue = parseInt(qtyInput.value);
+            if (currentValue < maxQty) {
+                qtyInput.value = currentValue + 1;
+            }
+        }
+    };
+    
+    window.decrementQty = function() {
+        if (qtyInput) {
+            let currentValue = parseInt(qtyInput.value);
+            if (currentValue > minQty) {
+                qtyInput.value = currentValue - 1;
+            }
+        }
+    };
+    
+    // ====== RATING STARS SYSTEM ======
+    const ratingInputs = document.querySelectorAll('.rating-input');
+    const ratingStarSvgs = document.querySelectorAll('.rating-star-svg');
+    
+    // Handle star rating interactions
+    ratingInputs.forEach((input, index) => {
+        const starLabel = input.closest('.rating-star-label');
+        const svg = starLabel.querySelector('.rating-star-svg');
+        
+        // Click handler
+        input.addEventListener('change', function() {
+            updateStarDisplay(index);
         });
         
-        star.addEventListener('click', function() {
-            ratingInputs[index].checked = true;
+        // Hover handlers
+        starLabel.addEventListener('mouseenter', function() {
             highlightStars(index);
         });
     });
     
-    // Reset on mouse leave
-    const ratingContainer = document.querySelector('.rating-star')?.parentElement?.parentElement;
-    if (ratingContainer) {
-        ratingContainer.addEventListener('mouseleave', function() {
+    // Reset stars on mouse leave from rating group
+    const ratingGroup = document.querySelector('.rating-input-group');
+    if (ratingGroup) {
+        ratingGroup.addEventListener('mouseleave', function() {
             const checkedInput = document.querySelector('.rating-input:checked');
             if (checkedInput) {
                 const checkedIndex = Array.from(ratingInputs).indexOf(checkedInput);
-                highlightStars(checkedIndex);
+                updateStarDisplay(checkedIndex);
             } else {
                 resetStars();
             }
         });
     }
     
-    function highlightStars(index) {
-        ratingStars.forEach((star, i) => {
-            star.textContent = i <= index ? '★' : '☆';
+    function highlightStars(upToIndex) {
+        ratingStarSvgs.forEach((svg, i) => {
+            if (i <= upToIndex) {
+                svg.classList.add('filled');
+            } else {
+                svg.classList.remove('filled');
+            }
         });
     }
     
+    function updateStarDisplay(upToIndex) {
+        highlightStars(upToIndex);
+    }
+    
     function resetStars() {
-        ratingStars.forEach(star => {
-            star.textContent = '☆';
+        ratingStarSvgs.forEach(svg => {
+            svg.classList.remove('filled');
+        });
+    }
+    
+    // ====== IMAGE ZOOM (Future Enhancement) ======
+    const productImage = document.querySelector('.product-image-large');
+    if (productImage) {
+        productImage.addEventListener('click', function() {
+            // Simple image modal - can be enhanced later
+            const modal = document.createElement('div');
+            modal.className = 'image-modal-overlay';
+            modal.innerHTML = `
+                <div class="image-modal-content">
+                    <button class="image-modal-close">&times;</button>
+                    <img src="${this.src}" alt="${this.alt}">
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+            
+            // Close modal
+            modal.addEventListener('click', function(e) {
+                if (e.target.classList.contains('image-modal-overlay') || e.target.classList.contains('image-modal-close')) {
+                    document.body.removeChild(modal);
+                    document.body.style.overflow = '';
+                }
+            });
         });
     }
 });
 </script>
+
+<style>
+/* Image Modal Styles */
+.image-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 2rem;
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.image-modal-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.5rem 1rem;
+    transition: opacity 0.2s;
+}
+
+.image-modal-close:hover {
+    opacity: 0.7;
+}
+</style>
 {% endblock %}
