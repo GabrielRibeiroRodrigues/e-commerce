@@ -6,9 +6,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
+from django.core.exceptions import ValidationError
 from produtos.models import Produto
 from .models import Pedido, ItemPedido, Pagamento
-from .services import processar_pagamento, PagamentoErro
+from pedidos import services as payment_services
+from .services.carrinho_service import CarrinhoService
 from core.email_utils import enviar_email_confirmacao_pedido
 
 logger = logging.getLogger(__name__)
@@ -42,21 +44,19 @@ def calcular_frete_por_cep(cep: str) -> Decimal:
 
 def carrinho(request):
     """View para exibir o carrinho de compras."""
-    carrinho = request.session.get('carrinho', {})
+    # Obter itens do carrinho via service
+    itens = CarrinhoService.get_carrinho(request)
     
-    # Montar estrutura do carrinho com objetos de produtos
+    # Montar estrutura do carrinho
     itens_carrinho = []
-    total = Decimal('0.00')
-    
-    for produto_id, item_data in carrinho.items():
-        produto = Produto.objects.get(id=produto_id)
-        subtotal = produto.preco_final * item_data['quantidade']
+    for item in itens:
         itens_carrinho.append({
-            'produto': produto,
-            'quantidade': item_data['quantidade'],
-            'subtotal': subtotal,
+            'produto': item.produto,
+            'quantidade': item.quantidade,
+            'subtotal': item.subtotal,
         })
-        total += subtotal
+    
+    total = CarrinhoService.get_total(request)
     
     checkout_info = request.session.get('checkout_info', {})
     valor_frete = checkout_info.get('valor_frete')
@@ -75,38 +75,24 @@ def carrinho(request):
 def adicionar_carrinho(request, produto_id):
     """View para adicionar produto ao carrinho."""
     if request.method == 'POST':
-        produto = get_object_or_404(Produto, id=produto_id, ativo=True)
-        quantidade = int(request.POST.get('quantidade', 1))
-        
-        # Validar quantidade
-        if quantidade < 1:
-            messages.error(request, 'Quantidade inválida.')
-            return redirect('produtos:detalhe', slug=produto.slug)
-        
-        if quantidade > produto.estoque:
-            messages.error(request, f'Apenas {produto.estoque} unidades disponíveis.')
-            return redirect('produtos:detalhe', slug=produto.slug)
-        
-        # Adicionar ao carrinho na sessão
-        carrinho = request.session.get('carrinho', {})
-        
-        if str(produto_id) in carrinho:
-            # Atualizar quantidade
-            nova_quantidade = carrinho[str(produto_id)]['quantidade'] + quantidade
-            if nova_quantidade > produto.estoque:
-                messages.error(request, f'Apenas {produto.estoque} unidades disponíveis.')
+        try:
+            quantidade = int(request.POST.get('quantidade', 1))
+            item = CarrinhoService.adicionar_produto(request, produto_id, quantidade)
+            messages.success(request, f'{item.produto.nome} adicionado ao carrinho.')
+        except ValidationError as e:
+            messages.error(request, str(e))
+            try:
+                produto = Produto.objects.get(id=produto_id)
                 return redirect('produtos:detalhe', slug=produto.slug)
-            carrinho[str(produto_id)]['quantidade'] = nova_quantidade
-            messages.success(request, f'Quantidade de {produto.nome} atualizada no carrinho.')
-        else:
-            # Adicionar novo item
-            carrinho[str(produto_id)] = {
-                'quantidade': quantidade,
-            }
-            messages.success(request, f'{produto.nome} adicionado ao carrinho.')
-        
-        request.session['carrinho'] = carrinho
-        request.session.modified = True
+            except Produto.DoesNotExist:
+                return redirect('core:home')
+        except ValueError:
+            messages.error(request, 'Quantidade inválida.')
+            try:
+                produto = Produto.objects.get(id=produto_id)
+                return redirect('produtos:detalhe', slug=produto.slug)
+            except Produto.DoesNotExist:
+                return redirect('core:home')
         
         return redirect('pedidos:carrinho')
     
@@ -116,21 +102,14 @@ def adicionar_carrinho(request, produto_id):
 def atualizar_carrinho(request, produto_id):
     """View para atualizar quantidade de item no carrinho."""
     if request.method == 'POST':
-        produto = get_object_or_404(Produto, id=produto_id)
-        quantidade = int(request.POST.get('quantidade', 1))
-        
-        carrinho = request.session.get('carrinho', {})
-        
-        if str(produto_id) in carrinho:
-            if quantidade < 1:
-                messages.error(request, 'Quantidade inválida.')
-            elif quantidade > produto.estoque:
-                messages.error(request, f'Apenas {produto.estoque} unidades disponíveis.')
-            else:
-                carrinho[str(produto_id)]['quantidade'] = quantidade
-                request.session['carrinho'] = carrinho
-                request.session.modified = True
-                messages.success(request, 'Carrinho atualizado.')
+        try:
+            quantidade = int(request.POST.get('quantidade', 1))
+            CarrinhoService.atualizar_quantidade(request, produto_id, quantidade)
+            messages.success(request, 'Carrinho atualizado.')
+        except ValidationError as e:
+            messages.error(request, str(e))
+        except ValueError:
+            messages.error(request, 'Quantidade inválida.')
         
         return redirect('pedidos:carrinho')
     
@@ -139,14 +118,14 @@ def atualizar_carrinho(request, produto_id):
 
 def remover_carrinho(request, produto_id):
     """View para remover item do carrinho."""
-    carrinho = request.session.get('carrinho', {})
-    
-    if str(produto_id) in carrinho:
-        produto = get_object_or_404(Produto, id=produto_id)
-        del carrinho[str(produto_id)]
-        request.session['carrinho'] = carrinho
-        request.session.modified = True
+    try:
+        produto = Produto.objects.get(id=produto_id)
+        CarrinhoService.remover_produto(request, produto_id)
         messages.success(request, f'{produto.nome} removido do carrinho.')
+    except ValidationError as e:
+        messages.error(request, str(e))
+    except Produto.DoesNotExist:
+        messages.error(request, 'Produto não encontrado.')
     
     return redirect('pedidos:carrinho')
 
@@ -154,25 +133,23 @@ def remover_carrinho(request, produto_id):
 @login_required
 def checkout(request):
     """View para finalização de compra."""
-    carrinho = request.session.get('carrinho', {})
+    # Verificar se carrinho tem itens via service
+    itens = CarrinhoService.get_carrinho(request)
     
-    if not carrinho:
+    if not itens.exists():
         messages.warning(request, 'Seu carrinho está vazio.')
         return redirect('produtos:lista')
     
     # Montar estrutura do carrinho
     itens_carrinho = []
-    total = Decimal('0.00')
-    
-    for produto_id, item_data in carrinho.items():
-        produto = Produto.objects.get(id=produto_id)
-        subtotal = produto.preco_final * item_data['quantidade']
+    for item in itens:
         itens_carrinho.append({
-            'produto': produto,
-            'quantidade': item_data['quantidade'],
-            'subtotal': subtotal,
+            'produto': item.produto,
+            'quantidade': item.quantidade,
+            'subtotal': item.subtotal,
         })
-        total += subtotal
+    
+    total = CarrinhoService.get_total(request)
     
     checkout_info = request.session.get('checkout_info', {})
     valor_frete = Decimal(checkout_info.get('valor_frete')) if checkout_info.get('valor_frete') else None
@@ -254,12 +231,12 @@ def checkout(request):
                     }
 
                     try:
-                        resultado_pagamento = processar_pagamento(
+                        resultado_pagamento = payment_services.processar_pagamento(
                             valor_total_com_frete,
                             metodo_pagamento,
                             dados_pagamento
                         )
-                    except PagamentoErro as exc:
+                    except payment_services.PagamentoErro as exc:
                         messages.error(request, str(exc))
                         resultado_pagamento = None
                     else:
@@ -332,7 +309,8 @@ def checkout(request):
                                     pedido.status = 'processando'
                                     pedido.save(update_fields=['status'])
 
-                                request.session['carrinho'] = {}
+                                # Limpar carrinho via service
+                                CarrinhoService.limpar_carrinho(request)
                                 request.session['checkout_info'] = {}
                                 request.session.modified = True
                                 

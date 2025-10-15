@@ -1,6 +1,74 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from produtos.models import Produto
+
+
+class CarrinhoItem(models.Model):
+    """Modelo para itens no carrinho de compras (persistente)."""
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='carrinho_itens',
+        null=True,
+        blank=True,
+        help_text='Usuário autenticado (null para carrinho anônimo)'
+    )
+    session_key = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text='Chave da sessão para carrinho anônimo'
+    )
+    produto = models.ForeignKey(
+        Produto,
+        on_delete=models.CASCADE,
+        related_name='carrinho_itens'
+    )
+    quantidade = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)]
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Item do Carrinho'
+        verbose_name_plural = 'Itens do Carrinho'
+        ordering = ['criado_em']
+        indexes = [
+            models.Index(fields=['usuario', 'produto']),
+            models.Index(fields=['session_key', 'produto']),
+            models.Index(fields=['criado_em']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['usuario', 'produto'],
+                condition=models.Q(usuario__isnull=False),
+                name='unique_usuario_produto'
+            ),
+            models.UniqueConstraint(
+                fields=['session_key', 'produto'],
+                condition=models.Q(session_key__isnull=False),
+                name='unique_session_produto'
+            ),
+            models.CheckConstraint(
+                check=models.Q(usuario__isnull=False) | models.Q(session_key__isnull=False),
+                name='usuario_ou_session_obrigatorio'
+            ),
+        ]
+
+    def __str__(self):
+        owner = self.usuario.username if self.usuario else f'Sessão {self.session_key[:8]}'
+        return f'{self.quantidade}x {self.produto.nome} - {owner}'
+
+    @property
+    def subtotal(self):
+        """Calcula o subtotal do item."""
+        if self.quantidade is not None and self.produto and self.produto.preco is not None:
+            return self.quantidade * self.produto.preco
+        return None
 
 
 class Pedido(models.Model):
@@ -51,7 +119,9 @@ class Pedido(models.Model):
     @property
     def total_com_frete(self):
         """Retorna o total geral incluindo o frete."""
-        return self.total + self.valor_frete
+        if self.total is not None and self.valor_frete is not None:
+            return self.total + self.valor_frete
+        return None
 
 
 class ItemPedido(models.Model):
@@ -78,7 +148,9 @@ class ItemPedido(models.Model):
     @property
     def subtotal(self):
         """Calcula o subtotal do item."""
-        return self.quantidade * self.preco_unitario
+        if self.quantidade is not None and self.preco_unitario is not None:
+            return self.quantidade * self.preco_unitario
+        return None
 
 
 class Pagamento(models.Model):
