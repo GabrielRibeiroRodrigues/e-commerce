@@ -4,10 +4,10 @@
 {% block title %}Lista de Desejos - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-hero">
     <div class="container">
-        <h1>💚 Minha Lista de Desejos</h1>
-        <p>Salve seus produtos favoritos para comprar depois</p>
+        <h1 class="hero-heading">Minha Lista de Desejos</h1>
+        <p class="hero-subtitle">Salve seus produtos favoritos para comprar depois</p>
     </div>
 </div>
 
@@ -47,7 +47,7 @@
                             <input type="hidden" name="next" value="{% url 'usuarios:lista_desejos' %}">
                             <button type="submit" class="btn btn-secondary btn-block" {% if not item.produto.disponivel %}disabled{% endif %}>
                                 {% if item.produto.disponivel %}
-                                    🛒 Adicionar ao Carrinho
+                                    Adicionar ao Carrinho
                                 {% else %}
                                     Produto Indisponível
                                 {% endif %}
