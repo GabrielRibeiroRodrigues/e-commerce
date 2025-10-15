@@ -4,177 +4,391 @@
 {% block title %}Produtos - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<section class="page-hero">
+<!-- Page Header Moderno -->
+<section class="products-header">
     <div class="container">
-        <h1 class="hero-heading">Catálogo completo</h1>
-        <p class="hero-subtitle">Filtre, compare e encontre os produtos ideais para o seu cuidado diário.</p>
+        <div class="products-header-content">
+            <div>
+                <h1 class="products-title">Explore Nossos Produtos</h1>
+                <p class="products-subtitle">Encontre exatamente o que você precisa em nosso catálogo completo</p>
+            </div>
+            <div class="products-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ page_obj.paginator.count }}</span>
+                    <span class="stat-label">Produtos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ categorias|length }}</span>
+                    <span class="stat-label">Categorias</span>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<div class="container">
-    <!-- Barra de Busca -->
-    <div class="search-bar">
-        <form method="get" class="search-form">
-            <input 
-                type="text" 
-                name="q" 
-                placeholder="Buscar produtos..." 
-                class="form-control"
-                value="{{ busca }}"
-            >
-            <button type="submit" class="btn btn-primary">Buscar</button>
-        </form>
+<div class="container products-container">
+    <!-- Barra de Busca e Filtros Superior -->
+    <div class="products-toolbar">
+        <div class="search-bar-modern">
+            <form method="get" class="search-form-modern">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 17A8 8 0 109 1a8 8 0 000 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Buscar produtos por nome, descrição..." 
+                    class="search-input-modern"
+                    value="{{ busca }}"
+                >
+                <button type="submit" class="btn-search-modern">
+                    <span>Buscar</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="filter-sort-bar">
+            <button class="btn-filter-toggle" id="filterToggle">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6h12M6 10h8M8 14h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Filtros</span>
+                {% if categoria_selecionada %}
+                    <span class="filter-badge">1</span>
+                {% endif %}
+            </button>
+
+            <div class="sort-dropdown">
+                <button class="btn-sort-toggle" id="sortToggle">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 8l4-4 4 4M6 12l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Ordenar</span>
+                </button>
+                <div class="sort-menu" id="sortMenu">
+                    <a href="?ordem=-criado_em{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="sort-item {% if ordem == '-criado_em' or not ordem %}active{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2v12M12 10l-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Mais Recentes</span>
+                    </a>
+                    <a href="?ordem=nome{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="sort-item {% if ordem == 'nome' %}active{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 4h8M4 8h6M4 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Nome (A-Z)</span>
+                    </a>
+                    <a href="?ordem=preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="sort-item {% if ordem == 'preco' %}active{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2v12M4 6l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Menor Preço</span>
+                    </a>
+                    <a href="?ordem=-preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="sort-item {% if ordem == '-preco' %}active{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 14V2M4 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Maior Preço</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-top: 2rem;">
-        <!-- Filtros Laterais -->
-        <aside>
-            <div class="filters">
-                <h3>Categorias</h3>
-                <div class="filter-group">
+    <!-- Layout Principal com Filtros Laterais -->
+    <div class="products-layout">
+        <!-- Sidebar de Filtros -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <div class="filters-header">
+                <h3 class="filters-title">Filtros</h3>
+                <button class="btn-filter-close" id="filterClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Categorias -->
+            <div class="filter-section">
+                <h4 class="filter-section-title">Categorias</h4>
+                <div class="filter-options">
                     <a href="{% url 'produtos:lista' %}" 
-                       class="filter-link {% if not categoria_selecionada %}active{% endif %}">
-                        Todas as Categorias
+                       class="filter-option {% if not categoria_selecionada %}active{% endif %}">
+                        <span class="filter-radio"></span>
+                        <span>Todas as Categorias</span>
                     </a>
                     {% for categoria in categorias %}
-                        <a href="?categoria={{ categoria.slug }}" 
-                           class="filter-link {% if categoria_selecionada == categoria.slug %}active{% endif %}">
-                            {{ categoria.nome }}
+                        <a href="?categoria={{ categoria.slug }}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                           class="filter-option {% if categoria_selecionada == categoria.slug %}active{% endif %}">
+                            <span class="filter-radio"></span>
+                            <span>{{ categoria.nome }}</span>
                         </a>
                     {% endfor %}
                 </div>
             </div>
 
-            <div class="filters">
-                <h3>Ordenar por</h3>
-                <div class="filter-group">
-                    <a href="?ordem=-criado_em{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
-                       class="filter-link {% if ordem == '-criado_em' %}active{% endif %}">
-                        Mais Recentes
-                    </a>
-                    <a href="?ordem=nome{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
-                       class="filter-link {% if ordem == 'nome' %}active{% endif %}">
-                        Nome (A-Z)
-                    </a>
-                    <a href="?ordem=preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
-                       class="filter-link {% if ordem == 'preco' %}active{% endif %}">
-                        Menor Preço
-                    </a>
-                    <a href="?ordem=-preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
-                       class="filter-link {% if ordem == '-preco' %}active{% endif %}">
-                        Maior Preço
-                    </a>
-                </div>
+            <!-- Botão Limpar Filtros -->
+            {% if categoria_selecionada %}
+            <div class="filter-actions">
+                <a href="{% url 'produtos:lista' %}" class="btn-clear-filters">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M14 4L4 14M4 4l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Limpar Filtros</span>
+                </a>
             </div>
+            {% endif %}
         </aside>
 
-        <!-- Lista de Produtos -->
-        <div>
+        <!-- Grid de Produtos -->
+        <div class="products-content">
             {% if busca %}
-                <p style="margin-bottom: 1rem; color: var(--cinza-escuro);">
-                    Resultados para: <strong>{{ busca }}</strong> ({{ page_obj.paginator.count }} produtos encontrados)
-                </p>
+                <div class="search-results-info">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 17A8 8 0 109 1a8 8 0 000 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>Resultados para <strong>"{{ busca }}"</strong> - {{ page_obj.paginator.count }} produto{{ page_obj.paginator.count|pluralize }} encontrado{{ page_obj.paginator.count|pluralize }}</span>
+                </div>
             {% endif %}
 
             {% if page_obj %}
-                <div class="produtos-grid">
+                <div class="products-grid-premium">
                     {% for produto in page_obj %}
-                    <div class="card">
-                        {% if produto.imagem %}
-                            <img src="{{ produto.thumbnail_lista.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                        {% else %}
-                            <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                        {% endif %}
-                        <div class="card-body">
-                            {% if produto.tem_promocao %}
-                                <span class="badge-promocao">Promoção</span>
-                            {% endif %}
-                            {% if produto.destaque %}
-                                <span class="badge-destaque">Destaque</span>
-                            {% endif %}
-                            <h3 class="card-title">{{ produto.nome }}</h3>
-                            <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
-                            
-                            {% if produto.tem_promocao %}
-                                <div>
-                                    <span class="preco-antigo">R$ {{ produto.preco }}</span>
-                                    <div class="preco preco-promocional">R$ {{ produto.preco_promocional }}</div>
-                                </div>
+                    <div class="product-card-premium">
+                        <div class="product-image-container">
+                            {% if produto.imagem %}
+                                <img src="{{ produto.thumbnail_lista.url }}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
                             {% else %}
-                                <div class="preco">R$ {{ produto.preco }}</div>
+                                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
                             {% endif %}
                             
-                            {% if produto.estoque < 10 %}
-                                <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
-                            {% else %}
-                                <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
-                            {% endif %}
-                            
-                            <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
-                                Ver detalhes
-                            </a>
+                            <!-- Badges -->
+                            <div class="product-badges">
+                                {% if produto.tem_promocao %}
+                                    <span class="badge-premium badge-promo">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                            <path d="M6 1l1.545 3.13L11 4.635 8.5 7.07l.59 3.43L6 8.885 2.91 10.5l.59-3.43L1 4.635l3.455-.505L6 1z" fill="currentColor"/>
+                                        </svg>
+                                        Promoção
+                                    </span>
+                                {% endif %}
+                                {% if produto.destaque %}
+                                    <span class="badge-premium badge-featured">Destaque</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Botão Wishlist -->
                             {% if user.is_authenticated %}
                                 {% if produto.id in wishlist_ids %}
-                                    <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" style="margin-top: 0.5rem;">
+                                    <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" class="wishlist-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                        <button type="submit" class="btn btn-secondary btn-block">
-                                            Remover da lista de desejos
+                                        <button type="submit" class="btn-wishlist active" title="Remover dos favoritos">
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10 17.5l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4c2 0 3.5 1.5 3.5 3.5 0 2.78-2.4 4.86-6.55 8.68L10 17.5z"/>
+                                            </svg>
                                         </button>
                                     </form>
                                 {% else %}
-                                    <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" style="margin-top: 0.5rem;">
+                                    <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" class="wishlist-form">
                                         {% csrf_token %}
                                         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                        <button type="submit" class="btn btn-secondary btn-block">
-                                            Adicionar à lista de desejos
+                                        <button type="submit" class="btn-wishlist" title="Adicionar aos favoritos">
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10 17.5l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4c2 0 3.5 1.5 3.5 3.5 0 2.78-2.4 4.86-6.55 8.68L10 17.5z" stroke="currentColor" stroke-width="1.5"/>
+                                            </svg>
                                         </button>
                                     </form>
                                 {% endif %}
-                            {% else %}
-                                <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
-                                    Entrar para favoritar
-                                </a>
                             {% endif %}
+
+                            <!-- Quick View Overlay -->
+                            <a href="{% url 'produtos:detalhe' produto.slug %}" class="quick-view-overlay">
+                                <span class="quick-view-text">Ver Detalhes</span>
+                            </a>
+                        </div>
+
+                        <div class="product-info">
+                            <h3 class="product-title">
+                                <a href="{% url 'produtos:detalhe' produto.slug %}">{{ produto.nome }}</a>
+                            </h3>
+                            <p class="product-description">{{ produto.descricao|truncatewords:12 }}</p>
+                            
+                            <div class="product-pricing">
+                                {% if produto.tem_promocao %}
+                                    <div class="price-group">
+                                        <span class="price-old">R$ {{ produto.preco }}</span>
+                                        <span class="price-current price-promo">R$ {{ produto.preco_promocional }}</span>
+                                    </div>
+                                    <span class="discount-badge">
+                                        {% widthratio produto.preco_promocional produto.preco 100 as discount %}
+                                        -{{ discount|add:"-100"|stringformat:"d" }}%
+                                    </span>
+                                {% else %}
+                                    <span class="price-current">R$ {{ produto.preco }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="product-stock">
+                                {% if produto.estoque > 10 %}
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="8" cy="8" r="6" stroke="#22c55e" stroke-width="2"/>
+                                        <path d="M5 8l2 2 4-4" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="stock-available">Em estoque</span>
+                                {% elif produto.estoque > 0 %}
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="8" cy="8" r="6" stroke="#f59e0b" stroke-width="2"/>
+                                        <path d="M8 5v4M8 11h.01" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="stock-low">Últimas {{ produto.estoque }} unidades</span>
+                                {% else %}
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="8" cy="8" r="6" stroke="#ef4444" stroke-width="2"/>
+                                        <path d="M10 6L6 10M6 6l4 4" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span class="stock-out">Indisponível</span>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn-product-view">
+                                <span>Ver Produto</span>
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </a>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
 
-                <!-- Paginação -->
+                <!-- Paginação Premium -->
                 {% if page_obj.paginator.num_pages > 1 %}
-                <div class="pagination">
+                <nav class="pagination-premium">
                     {% if page_obj.has_previous %}
-                        <a href="?page=1{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
-                            Primeira
-                        </a>
-                        <a href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
-                            Anterior
+                        <a href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                           class="pagination-btn pagination-prev">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M12 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span>Anterior</span>
                         </a>
                     {% endif %}
 
-                    <span class="current">
-                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-                    </span>
+                    <div class="pagination-numbers">
+                        {% if page_obj.number > 2 %}
+                            <a href="?page=1{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                               class="pagination-number">1</a>
+                            {% if page_obj.number > 3 %}
+                                <span class="pagination-ellipsis">...</span>
+                            {% endif %}
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
+                                <a href="?page={{ num }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                                   class="pagination-number {% if num == page_obj.number %}active{% endif %}">
+                                    {{ num }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.number < page_obj.paginator.num_pages|add:'-1' %}
+                            {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                                <span class="pagination-ellipsis">...</span>
+                            {% endif %}
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                               class="pagination-number">{{ page_obj.paginator.num_pages }}</a>
+                        {% endif %}
+                    </div>
 
                     {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
-                            Próxima
-                        </a>
-                        <a href="?page={{ page_obj.paginator.num_pages }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
-                            Última
+                        <a href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
+                           class="pagination-btn pagination-next">
+                            <span>Próxima</span>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
                         </a>
                     {% endif %}
-                </div>
+                </nav>
                 {% endif %}
             {% else %}
-                <div class="empty-cart">
-                    <h2>Nenhum produto encontrado</h2>
-                    <p>Refine seus filtros ou pesquise novamente para encontrar o que procura.</p>
-                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary">Ver todos os produtos</a>
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                            <circle cx="40" cy="40" r="38" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"/>
+                            <path d="M40 20v20M40 52v8M52 32L40 44 28 32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h2 class="empty-state-title">Nenhum produto encontrado</h2>
+                    <p class="empty-state-text">
+                        {% if busca %}
+                            Não encontramos produtos para sua busca. Tente outros termos ou navegue por categorias.
+                        {% else %}
+                            Refine seus filtros ou explore outras categorias para encontrar o que procura.
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'produtos:lista' %}" class="btn-empty-state">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M8 4l-6 6 6 6M2 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Ver Todos os Produtos</span>
+                    </a>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<div class="filter-overlay" id="filterOverlay"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Controle dos filtros mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const filterToggle = document.getElementById('filterToggle');
+    const filtersSidebar = document.getElementById('filtersSidebar');
+    const filterClose = document.getElementById('filterClose');
+    const filterOverlay = document.getElementById('filterOverlay');
+    
+    function openFilters() {
+        filtersSidebar.classList.add('active');
+        filterOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeFilters() {
+        filtersSidebar.classList.remove('active');
+        filterOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    filterToggle?.addEventListener('click', openFilters);
+    filterClose?.addEventListener('click', closeFilters);
+    filterOverlay?.addEventListener('click', closeFilters);
+    
+    // Controle do dropdown de ordenação
+    const sortToggle = document.getElementById('sortToggle');
+    const sortMenu = document.getElementById('sortMenu');
+    
+    sortToggle?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        sortMenu.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', function() {
+        sortMenu?.classList.remove('active');
+    });
+    
+    sortMenu?.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+});
+</script>
 {% endblock %}
