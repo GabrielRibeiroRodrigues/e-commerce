@@ -143,6 +143,131 @@
         </div>
     </div>
 
+    <!-- Avaliações do Produto -->
+    <section style="margin-top: 4rem; margin-bottom: 3rem;">
+        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+            Avaliações dos Clientes
+        </h2>
+
+        <!-- Média de Avaliações -->
+        {% if produto.total_avaliacoes > 0 %}
+        <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: center; gap: 2rem;">
+            <div style="text-align: center;">
+                <div style="font-size: 3rem; font-weight: bold; color: var(--verde-principal);">
+                    {{ produto.media_avaliacoes|floatformat:1 }}
+                </div>
+                <div style="color: var(--amarelo); font-size: 1.5rem;">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= produto.media_avaliacoes %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div style="color: var(--cinza-escuro); margin-top: 0.5rem;">
+                    {{ produto.total_avaliacoes }} avaliação{{ produto.total_avaliacoes|pluralize:"ões" }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Formulário de Avaliação -->
+        {% if user.is_authenticated %}
+            {% if not ja_avaliou %}
+            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid var(--cinza-medio);">
+                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">Avaliar este produto</h3>
+                <form action="{% url 'produtos:adicionar_avaliacao' produto.id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="rating" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">Nota:</label>
+                        <div style="display: flex; gap: 0.5rem; font-size: 2rem; color: var(--amarelo);">
+                            {% for i in "12345" %}
+                            <label style="cursor: pointer;">
+                                <input type="radio" name="rating" value="{{ forloop.counter }}" required style="display: none;" class="rating-input">
+                                <span class="rating-star">☆</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="comentario" style="font-weight: bold; margin-bottom: 0.5rem; display: block;">Comentário:</label>
+                        <textarea 
+                            name="comentario" 
+                            id="comentario" 
+                            rows="4" 
+                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--cinza-medio); border-radius: 5px; font-family: inherit;"
+                            placeholder="Compartilhe sua experiência com este produto..."
+                        ></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        Enviar Avaliação
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <div style="background-color: var(--brand-050); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 3px solid var(--brand-500);">
+                <p style="color: var(--cinza-escuro);">Você já avaliou este produto. Obrigado pelo seu feedback!</p>
+            </div>
+            {% endif %}
+        {% else %}
+        <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center;">
+            <p style="margin-bottom: 1rem;">Faça login para avaliar este produto</p>
+            <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-primary">
+                Fazer Login
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Lista de Avaliações -->
+        {% if avaliacoes %}
+        <div>
+            <h3 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                Todas as Avaliações ({{ avaliacoes|length }})
+            </h3>
+            {% for avaliacao in avaliacoes %}
+            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--cinza-medio);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <div>
+                        <div style="font-weight: bold; color: var(--verde-principal);">
+                            {{ avaliacao.usuario.first_name|default:avaliacao.usuario.username }}
+                        </div>
+                        <div style="color: var(--amarelo); font-size: 1.2rem;">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avaliacao.rating %}
+                                    ★
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div style="color: var(--cinza-escuro); font-size: 0.9rem;">
+                        {{ avaliacao.criado_em|date:"d/m/Y" }}
+                    </div>
+                </div>
+                {% if avaliacao.comentario %}
+                <p style="color: var(--cinza-escuro); line-height: 1.6;">
+                    {{ avaliacao.comentario }}
+                </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% elif produto.total_avaliacoes == 0 %}
+        <div style="background-color: var(--cinza-claro); padding: 2rem; border-radius: 8px; text-align: center; color: var(--cinza-escuro);">
+            <p style="font-size: 1.1rem;">Este produto ainda não possui avaliações.</p>
+            {% if user.is_authenticated %}
+            <p style="margin-top: 0.5rem;">Seja o primeiro a avaliar!</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+
     <!-- Produtos Relacionados -->
     {% if produtos_relacionados %}
     <section style="margin-top: 4rem; margin-bottom: 3rem;">
@@ -183,4 +308,51 @@
     </section>
     {% endif %}
 </div>
+
+{% block extra_js %}
+<script>
+// Sistema de avaliação com estrelas interativas
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('.rating-input');
+    const ratingStars = document.querySelectorAll('.rating-star');
+    
+    // Hover effect
+    ratingStars.forEach((star, index) => {
+        star.addEventListener('mouseenter', function() {
+            highlightStars(index);
+        });
+        
+        star.addEventListener('click', function() {
+            ratingInputs[index].checked = true;
+            highlightStars(index);
+        });
+    });
+    
+    // Reset on mouse leave
+    const ratingContainer = document.querySelector('.rating-star')?.parentElement?.parentElement;
+    if (ratingContainer) {
+        ratingContainer.addEventListener('mouseleave', function() {
+            const checkedInput = document.querySelector('.rating-input:checked');
+            if (checkedInput) {
+                const checkedIndex = Array.from(ratingInputs).indexOf(checkedInput);
+                highlightStars(checkedIndex);
+            } else {
+                resetStars();
+            }
+        });
+    }
+    
+    function highlightStars(index) {
+        ratingStars.forEach((star, i) => {
+            star.textContent = i <= index ? '★' : '☆';
+        });
+    }
+    
+    function resetStars() {
+        ratingStars.forEach(star => {
+            star.textContent = '☆';
+        });
+    }
+});
+</script>
 {% endblock %}

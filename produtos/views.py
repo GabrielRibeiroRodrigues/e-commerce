@@ -1,8 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Produto, Categoria
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Produto, Categoria, Avaliacao
 from usuarios.models import ListaDesejo
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def lista_produtos(request):
@@ -64,9 +69,19 @@ def detalhe_produto(request, slug):
         ativo=True
     ).select_related('categoria').exclude(id=produto.id)[:4]
     
+    # Avaliações do produto
+    avaliacoes = produto.avaliacoes.select_related('usuario').order_by('-criado_em')
+    
     em_lista_desejos = False
+    ja_avaliou = False
+    
     if request.user.is_authenticated:
         em_lista_desejos = ListaDesejo.objects.filter(
+            usuario=request.user,
+            produto=produto
+        ).exists()
+        
+        ja_avaliou = Avaliacao.objects.filter(
             usuario=request.user,
             produto=produto
         ).exists()
@@ -75,5 +90,47 @@ def detalhe_produto(request, slug):
         'produto': produto,
         'produtos_relacionados': produtos_relacionados,
         'em_lista_desejos': em_lista_desejos,
+        'avaliacoes': avaliacoes,
+        'ja_avaliou': ja_avaliou,
     }
     return render(request, 'produtos/detalhe.html', context)
+
+
+@login_required
+def adicionar_avaliacao(request, produto_id):
+    """Adiciona uma avaliação para um produto."""
+    if request.method != 'POST':
+        return redirect('produtos:lista')
+    
+    produto = get_object_or_404(Produto, id=produto_id, ativo=True)
+    
+    # Verifica se o usuário já avaliou o produto
+    if Avaliacao.objects.filter(usuario=request.user, produto=produto).exists():
+        messages.warning(request, 'Você já avaliou este produto.')
+        return redirect('produtos:detalhe', slug=produto.slug)
+    
+    try:
+        rating = int(request.POST.get('rating', 0))
+        if rating < 1 or rating > 5:
+            raise ValueError('Rating inválido')
+        
+        comentario = request.POST.get('comentario', '').strip()
+        
+        Avaliacao.objects.create(
+            produto=produto,
+            usuario=request.user,
+            rating=rating,
+            comentario=comentario
+        )
+        
+        messages.success(request, 'Sua avaliação foi enviada com sucesso!')
+        logger.info(
+            f'Avaliação criada: Produto {produto.nome} (ID: {produto.id}), '
+            f'Usuário: {request.user.username}, Rating: {rating}'
+        )
+        
+    except (ValueError, TypeError) as e:
+        messages.error(request, 'Dados de avaliação inválidos.')
+        logger.error(f'Erro ao criar avaliação: {str(e)}')
+    
+    return redirect('produtos:detalhe', slug=produto.slug)

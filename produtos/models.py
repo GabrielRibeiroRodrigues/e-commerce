@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill, ResizeToFit
 
@@ -108,3 +110,46 @@ class Produto(models.Model):
     def disponivel(self):
         """Verifica se o produto está disponível para venda."""
         return self.ativo and self.estoque > 0
+    
+    @property
+    def media_avaliacoes(self):
+        """Retorna a média das avaliações do produto."""
+        avaliacoes = self.avaliacoes.all()
+        if not avaliacoes:
+            return 0
+        return sum(av.rating for av in avaliacoes) / len(avaliacoes)
+    
+    @property
+    def total_avaliacoes(self):
+        """Retorna o total de avaliações do produto."""
+        return self.avaliacoes.count()
+
+
+class Avaliacao(models.Model):
+    """Modelo para avaliações de produtos."""
+    produto = models.ForeignKey(
+        Produto,
+        on_delete=models.CASCADE,
+        related_name='avaliacoes'
+    )
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='avaliacoes'
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text='Avaliação de 1 a 5 estrelas'
+    )
+    comentario = models.TextField(blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Avaliação'
+        verbose_name_plural = 'Avaliações'
+        ordering = ['-criado_em']
+        unique_together = ['produto', 'usuario']
+    
+    def __str__(self):
+        return f'{self.usuario.username} - {self.produto.nome} ({self.rating}/5)'

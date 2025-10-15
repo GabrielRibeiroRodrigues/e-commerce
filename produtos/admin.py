@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categoria, Produto
+from .models import Categoria, Produto, Avaliacao
 
 
 @admin.register(Categoria)
@@ -51,3 +51,17 @@ class ProdutoAdmin(admin.ModelAdmin):
         """Otimiza queries do admin."""
         qs = super().get_queryset(request)
         return qs.select_related('categoria')
+
+
+@admin.register(Avaliacao)
+class AvaliacaoAdmin(admin.ModelAdmin):
+    """Configuração do admin para Avaliações."""
+    list_display = ['produto', 'usuario', 'rating', 'criado_em']
+    list_filter = ['rating', 'criado_em']
+    search_fields = ['produto__nome', 'usuario__username', 'comentario']
+    readonly_fields = ['criado_em', 'atualizado_em']
+    
+    def get_queryset(self, request):
+        """Otimiza queries do admin."""
+        qs = super().get_queryset(request)
+        return qs.select_related('produto', 'usuario')
