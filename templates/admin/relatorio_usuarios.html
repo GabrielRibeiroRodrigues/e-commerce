@@ -40,6 +40,12 @@
     margin-bottom: 2rem;
 }
 
+.chart-wrapper-usuarios {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -157,7 +163,9 @@ tr:hover {
     <!-- Gráfico de Novos Usuários -->
     <div class="chart-section">
         <h2 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Novos Usuários por Mês</h2>
-        <canvas id="usuariosChart" height="100"></canvas>
+        <div class="chart-wrapper-usuarios">
+            <canvas id="usuariosChart"></canvas>
+        </div>
     </div>
 
     <!-- Top Clientes -->

@@ -41,6 +41,14 @@
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     margin-bottom: 2rem;
+    position: relative;
+    height: 350px;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 280px;
+    width: 100%;
 }
 
 .alert-banner {
@@ -181,21 +189,27 @@
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
         <!-- Vendas por Dia -->
         <div class="chart-container">
-            <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Vendas dos Últimos 30 Dias</h3>
-            <canvas id="vendasChart" height="250"></canvas>
+            <h3 style="margin: 0 0 1rem; color: var(--neutral-800);">Vendas dos Últimos 30 Dias</h3>
+            <div class="chart-wrapper">
+                <canvas id="vendasChart"></canvas>
+            </div>
         </div>
 
         <!-- Pedidos por Status -->
         <div class="chart-container">
-            <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Pedidos por Status</h3>
-            <canvas id="statusChart" height="250"></canvas>
+            <h3 style="margin: 0 0 1rem; color: var(--neutral-800);">Pedidos por Status</h3>
+            <div class="chart-wrapper">
+                <canvas id="statusChart"></canvas>
+            </div>
         </div>
     </div>
 
     <!-- Produtos Mais Vendidos -->
-    <div class="chart-container">
-        <h3 style="margin: 0 0 1.5rem; color: var(--neutral-800);">Top 10 Produtos Mais Vendidos</h3>
-        <canvas id="produtosChart" height="150"></canvas>
+    <div class="chart-container" style="height: 450px;">
+        <h3 style="margin: 0 0 1rem; color: var(--neutral-800);">Top 10 Produtos Mais Vendidos</h3>
+        <div class="chart-wrapper" style="height: 380px;">
+            <canvas id="produtosChart"></canvas>
+        </div>
     </div>
 
     <!-- Métricas Adicionais -->
