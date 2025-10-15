@@ -158,5 +158,5 @@ LOGOUT_REDIRECT_URL = 'core:home'
 
 # Login Social (Google)
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
- = os.environ.get('GOOGLE_CLIENT_SECRET', '')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 GOOGLE_OAUTH_SCOPE = 'openid email profile'

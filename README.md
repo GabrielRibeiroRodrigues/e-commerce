@@ -11,206 +11,187 @@ E-commerce completo desenvolvido em Django para a **Farmácia QUEOPS**, com sist
 
 ## ✨ Funcionalidades
 
-### 🛍️ Para Clientes
-- ✅ Navegação por produtos com filtros e busca
-- ✅ Visualização detalhada de produtos
-- ✅ Carrinho de compras (adicionar, remover, atualizar quantidades)
-- ✅ Sistema de checkout com informações de entrega
-- ✅ Registro e login de usuários
-- ✅ Login Social com Google
-- ✅ Perfil do usuário com histórico de pedidos
-- ✅ Produtos em destaque e promoções
+# Farmácia QUEOPS – Plataforma de E-commerce
 
-### 🔧 Para Administradores
-- ✅ Painel administrativo Django customizado
-- ✅ CRUD completo de produtos e categorias
-- ✅ Gerenciamento de pedidos e status
-- ✅ Controle de estoque automático
-- ✅ Upload de imagens de produtos
-
-## 🎨 Design
-
-- Tema verde e branco (identidade farmacêutica)
-- Layout responsivo
-- Interface intuitiva e amigável
-- Feedback visual para ações do usuário
-
-## 📦 Estrutura do Projeto
-
-```
-queops/
-├── core/              # App principal (home)
-├── produtos/          # Gerenciamento de produtos
-├── usuarios/          # Autenticação e perfil
-├── pedidos/           # Carrinho e checkout
-├── templates/         # Templates HTML
-├── static/            # Arquivos CSS e imagens
-├── media/             # Uploads (imagens de produtos)
-└── queops/            # Configurações do projeto
-```
-
-## 🔧 Instalação e Configuração
-
-### 1. Clone o repositório
-```bash
-git clone <url-do-repositorio>
-cd e-commerce
-```
-
-### 2. Crie e ative o ambiente virtual
-```bash
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-# ou
-source venv/bin/activate  # Linux/Mac
-```
-
-### 3. Instale as dependências
-```bash
-pip install django pillow python-dotenv
-```
-
-### 4. Execute as migrações
-```bash
-python manage.py migrate
-```
-
-### 5. Popule o banco de dados (opcional)
-```bash
-python popular_dados.py
-```
-
-Este script criará:
-- 2 usuários (admin e cliente)
-- 5 categorias de produtos
-- 16 produtos de exemplo
-
-### 6. Inicie o servidor
-```bash
-python manage.py runserver
-```
-
-Acesse: `http://127.0.0.1:8000/`
-
-### ☁️ Login com Google (opcional)
-
-Para habilitar o login social, crie credenciais OAuth 2.0 no console do Google Cloud e defina as variáveis de ambiente antes de subir o servidor:
-
-```bash
-set GOOGLE_CLIENT_ID=seu_client_id      # Windows PowerShell/CMD
-set GOOGLE_CLIENT_SECRET=sua_chave
-
-# No Linux/macOS:
-export GOOGLE_CLIENT_ID=seu_client_id
-export GOOGLE_CLIENT_SECRET=sua_chave
-```
-
-Configure o URI de redirecionamento como:
-
-```
-http://localhost:8000/usuarios/login/google/callback/
-```
-
-Com os dados definidos, o botão "Entrar com Google" aparecerá automaticamente na tela de login.
-
-> Dica: você pode criar um arquivo `.env` na raiz do projeto contendo `GOOGLE_CLIENT_ID=` e `GOOGLE_CLIENT_SECRET=`. O Django carregará esses valores automaticamente quando o servidor iniciar.
-
-## 🔐 Credenciais de Acesso
-
-Após executar o script `popular_dados.py`:
-
-**Administrador:**
-- Usuário: `admin`
-- Senha: `admin123`
-- Painel: `http://127.0.0.1:8000/admin/`
-
-**Cliente de Teste:**
-- Usuário: `cliente`
-- Senha: `cliente123`
-
-## 📱 Páginas Disponíveis
-
-- `/` - Página inicial
-- `/produtos/` - Lista de produtos
-- `/produtos/<slug>/` - Detalhes do produto
-- `/pedidos/carrinho/` - Carrinho de compras
-- `/pedidos/checkout/` - Finalizar compra
-- `/usuarios/registro/` - Cadastro
-- `/usuarios/login/` - Login
-- `/usuarios/perfil/` - Perfil do usuário
-- `/admin/` - Painel administrativo
-
-## 🛒 Fluxo de Compra
-
-1. **Navegação:** Cliente navega pelos produtos
-2. **Adicionar ao Carrinho:** Seleciona produtos e quantidades
-3. **Revisão:** Visualiza o carrinho e ajusta itens
-4. **Login:** Faz login ou cria uma conta
-5. **Checkout:** Preenche dados de entrega
-6. **Confirmação:** Recebe confirmação do pedido
-7. **Histórico:** Acompanha pedidos no perfil
-
-## 🎯 Recursos Técnicos
-
-### Models
-- `Categoria` - Categorização de produtos
-- `Produto` - Produtos da farmácia
-- `Pedido` - Pedidos dos clientes
-- `ItemPedido` - Itens de cada pedido
-
-### Views
-- **Class-Based Views** para operações complexas
-- **Function-Based Views** para páginas simples
-- Decoradores de autenticação (@login_required)
-- Context processors customizados
-
-### Templates
-- Sistema de herança (base.html)
-- Template tags do Django
-- Filtros personalizados
-- Mensagens de feedback
-
-### Admin
-- Interface customizada
-- Inlines para itens de pedido
-- Filtros e buscas avançadas
-- Campos editáveis em lista
-
-## 🔒 Segurança
-
-- Proteção CSRF em formulários
-- Autenticação de usuários
-- Controle de acesso por decorators
-- Validação de estoque em tempo real
-
-## 📊 Banco de Dados
-
-O projeto utiliza SQLite por padrão. Para usar PostgreSQL ou MySQL:
-
-1. Instale o driver apropriado
-2. Modifique `DATABASES` em `settings.py`
-3. Execute as migrações novamente
-
-## 🚧 Próximas Melhorias (Sugestões)
-
-- [x] Sistema de pagamento integrado
-- [ ] Envio de e-mails transacionais
-- [ ] Sistema de avaliações de produtos
-- [x] Wishlist (lista de desejos)
-- [ ] Cupons de desconto
-- [x] Cálculo de frete por CEP
-- [ ] Dashboard de vendas para admin
-- [ ] API REST para integração mobile
-- [ ] Testes automatizados
-
-## 📝 Licença
-
-Projeto desenvolvido para fins educacionais.
-
-## 👨‍💻 Desenvolvedor
-
-Desenvolvido com ❤️ para a Farmácia QUEOPS
+Aplicação web completa construída com Django para a Farmácia QUEOPS. O projeto cobre o fluxo de venda ponta a ponta: catálogo de produtos, carrinho, checkout com cálculo de frete, pagamento integrado e experiência autenticada para clientes e administradores.
 
 ---
 
-**Farmácia QUEOPS** - Sua saúde e bem-estar são nossa prioridade! 🏥
+## Sumário
+
+- [Visão Geral](#visão-geral)
+- [Principais Funcionalidades](#principais-funcionalidades)
+- [Arquitetura e Tecnologia](#arquitetura-e-tecnologia)
+- [Preparação do Ambiente](#preparação-do-ambiente)
+- [Execução Local](#execução-local)
+- [Variáveis de Ambiente](#variáveis-de-ambiente)
+- [Pagamentos e Frete](#pagamentos-e-frete)
+- [Contas de Acesso de Demonstração](#contas-de-acesso-de-demonstracao)
+- [Mapa de Rotas](#mapa-de-rotas)
+- [Roadmap](#roadmap)
+- [Créditos](#créditos)
+
+---
+
+## Visão Geral
+
+A solução foi desenhada para uma farmácia de médio porte que deseja vender on-line sem dependências de frameworks front-end pesados. A interface utiliza HTML e CSS puros, com foco em clareza e acessibilidade, enquanto o back-end Django garante segurança, escalabilidade e manutenção facilitada.
+
+---
+
+## Principais Funcionalidades
+
+### Experiência do Cliente
+- Catálogo com filtros, busca e sinalização de promoções.
+- Página de detalhes com informações completas do produto e integração com wishlist.
+- Carrinho com atualização de quantidades e feedback imediato.
+- Checkout com validação de endereço, cálculo de frete por CEP e captura de pagamento.
+- Histórico de pedidos e acompanhamento pós-compra em área autenticada.
+- Autenticação tradicional e login social via Google OAuth 2.0.
+
+### Operações e Backoffice
+- Painel administrativo customizado (Django Admin) com visão dos pedidos e itens.
+- Controle automático de estoque e status do pedido.
+- Gestão de catálogo (categorias, promoções, destaques, imagens de produto).
+- Registro das transações financeiras associadas a cada pedido.
+
+---
+
+## Arquitetura e Tecnologia
+
+| Camada | Tecnologias |
+| --- | --- |
+| Back-end | Python 3.12, Django 5.2.7 |
+| Banco de dados | SQLite (ambiente local). Adaptável para PostgreSQL/MySQL |
+| Front-end | HTML5, CSS3 (design responsivo) |
+| Dependências essenciais | Pillow (imagens), python-dotenv (carregamento do `.env`) |
+
+Estrutura de diretórios principal:
+
+```
+queops/
+├── core/               # Landing page e conteúdo institucional
+├── produtos/           # Regras de catálogo e exibição
+├── usuarios/           # Autenticação, perfis, social login
+├── pedidos/            # Carrinho, checkout, frete, pagamentos
+├── templates/          # Templates HTML compartilhados
+├── static/             # CSS, imagens e assets estáticos
+├── media/              # Uploads gerenciados pelo admin
+└── queops/             # Configurações de projeto e URLs globais
+```
+
+---
+
+## Preparação do Ambiente
+
+```bash
+git clone <url-do-repositorio>
+cd e-commerce
+
+python -m venv venv
+./venv/Scripts/activate   # Windows
+# source venv/bin/activate  # Linux/macOS
+
+pip install django pillow python-dotenv
+```
+
+---
+
+## Execução Local
+
+```bash
+# Aplicar migrações
+python manage.py migrate
+
+# (opcional) Popular base de dados de exemplo
+python popular_dados.py
+
+# Subir servidor de desenvolvimento
+python manage.py runserver
+```
+
+A aplicação ficará disponível em `http://127.0.0.1:8000/`.
+
+---
+
+## Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com os seguintes valores (exemplo):
+
+```
+GOOGLE_CLIENT_ID=seu_client_id
+GOOGLE_CLIENT_SECRET=sua_chave
+```
+
+As variáveis são carregadas automaticamente durante a inicialização. Para produção, recomenda-se configurar esses valores diretamente no ambiente de execução.
+
+### Configuração do Google OAuth
+
+1. Crie credenciais OAuth 2.0 do tipo “Aplicativo Web” no [Google Cloud Console](https://console.cloud.google.com/).
+2. Autorização para desenvolvimento:
+	- **URI de redirecionamento:** `http://localhost:8000/usuarios/login/google/callback/`
+	- **Origem JavaScript (opcional):** `http://localhost:8000`
+3. Em produção, adicione os domínios definitivos nas listas de origens e redirecionamentos.
+
+---
+
+## Pagamentos e Frete
+
+- **Frete por CEP:** cálculo escalonado por região com feedback imediato ao usuário.
+- **Pagamentos simulados:** gateway fictício que representa Cartão de Crédito, Pix e Boleto, registrando status e códigos de autorização para cada pedido.
+
+As regras do pagamento estão encapsuladas em `pedidos/services.py`, mantendo o domínio pronto para integração real no futuro.
+
+---
+
+## Contas de Acesso de Demonstração
+
+Disponíveis após executar `popular_dados.py`:
+
+| Perfil | Usuário | Senha | Observações |
+| --- | --- | --- | --- |
+| Administrador | `admin` | `admin123` | Acesso ao Django Admin (`/admin/`) |
+| Cliente | `cliente` | `cliente123` | Perfil de compras para testes |
+
+---
+
+## Mapa de Rotas
+
+| Endpoint | Descrição |
+| --- | --- |
+| `/` | Página inicial |
+| `/produtos/` | Catálogo completo |
+| `/produtos/<slug>/` | Detalhes do produto |
+| `/pedidos/carrinho/` | Carrinho de compras |
+| `/pedidos/checkout/` | Processo de checkout |
+| `/usuarios/registro/` | Cadastro de clientes |
+| `/usuarios/login/` | Login tradicional |
+| `/usuarios/login/google/` | Início do fluxo Google |
+| `/usuarios/perfil/` | Histórico de pedidos |
+| `/admin/` | Painel administrativo |
+
+---
+
+## Roadmap
+
+- [x] Integração de pagamento e registro de transações
+- [x] Wishlist para clientes autenticados
+- [x] Cálculo de frete por CEP
+- [x] Login social (Google OAuth)
+- [ ] Envio de e-mails transacionais
+- [ ] Sistema de avaliações de produtos
+- [ ] Cupons e promoções avançadas
+- [ ] Dashboard analítico para administradores
+- [ ] API REST para integrações externas
+- [ ] Cobertura de testes automatizados
+
+---
+
+## Créditos
+
+Projeto desenvolvido para fins educacionais dentro da iniciativa Farmácia QUEOPS.
+
+---
+
+**Farmácia QUEOPS – sua saúde em primeiro lugar.**
+- [ ] Envio de e-mails transacionais
