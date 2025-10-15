@@ -4,13 +4,14 @@
 {% block title %}Home - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="page-header">
+<section class="page-hero">
     <div class="container">
-        <h1>🏥 Bem-vindo à Farmácia QUEOPS</h1>
-        <p>Sua saúde e bem-estar são nossa prioridade</p>
+        <h1 class="hero-heading">Bem-vindo à Farmácia QUEOPS</h1>
+        <p class="hero-subtitle">
+            Cuidamos de cada detalhe para que sua experiência de compra seja segura, ágil e orientada à saúde.
+        </p>
     </div>
-</div>
+</section>
 
 <div class="container">
     <!-- Barra de Busca -->
@@ -30,9 +31,8 @@
     {% if produtos_promocao %}
     <!-- Produtos em Promoção -->
     <section style="margin-bottom: 3rem;">
-        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
-            🔥 Promoções Imperdíveis
-        </h2>
+        <h2 class="section-title">Ofertas em destaque</h2>
+        <p class="section-subtitle">Seleção especial com preços exclusivos por tempo limitado.</p>
         <div class="produtos-grid">
             {% for produto in produtos_promocao %}
             <div class="card">
@@ -67,9 +67,8 @@
     {% if produtos_destaque %}
     <!-- Produtos em Destaque -->
     <section style="margin-bottom: 3rem;">
-        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
-            ⭐ Produtos em Destaque
-        </h2>
+        <h2 class="section-title">Produtos recomendados</h2>
+        <p class="section-subtitle">Itens selecionados pela nossa equipe farmacêutica.</p>
         <div class="produtos-grid">
             {% for produto in produtos_destaque %}
             <div class="card">
@@ -100,9 +99,7 @@
 
     <!-- Call to Action -->
     <div style="text-align: center; padding: 3rem 0;">
-        <h2 style="color: var(--verde-principal); margin-bottom: 1rem;">
-            Explore Todos os Nossos Produtos
-        </h2>
+        <h2 class="section-title" style="margin-bottom: 1rem;">Explore todo o portfólio QUEOPS</h2>
         <a href="{% url 'produtos:lista' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
             Ver Catálogo Completo
         </a>
