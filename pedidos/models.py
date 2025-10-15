@@ -24,6 +24,12 @@ class Pedido(models.Model):
         default='pendente'
     )
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    valor_frete = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        help_text='Valor cobrado de frete para este pedido'
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -41,6 +47,11 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f'Pedido #{self.id} - {self.usuario.username}'
+
+    @property
+    def total_com_frete(self):
+        """Retorna o total geral incluindo o frete."""
+        return self.total + self.valor_frete
 
 
 class ItemPedido(models.Model):

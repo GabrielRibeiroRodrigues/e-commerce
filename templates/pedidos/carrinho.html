@@ -95,13 +95,21 @@
                             </p>
                             <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span>Frete:</span>
-                                <strong>Grátis</strong>
+                                {% if valor_frete is not None %}
+                                    {% if valor_frete > 0 %}
+                                        <strong style="color: var(--verde-principal);">R$ {{ valor_frete }}</strong>
+                                    {% else %}
+                                        <strong style="color: var(--verde-principal);">R$ 0,00</strong>
+                                    {% endif %}
+                                {% else %}
+                                    <strong style="color: var(--cinza-escuro); font-size: 0.95rem;">Calcule no checkout</strong>
+                                {% endif %}
                             </p>
                         </div>
 
                         <p style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; color: var(--verde-principal); margin-bottom: 1.5rem;">
                             <span>Total:</span>
-                            <span>R$ {{ total }}</span>
+                            <span>R$ {{ total_geral }}</span>
                         </p>
 
                         {% if user.is_authenticated %}

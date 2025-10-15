@@ -30,9 +30,20 @@
                 <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
                     <strong>Status:</strong> {{ pedido.get_status_display }}
                 </p>
-                <p style="font-size: 1.5rem; font-weight: bold; color: var(--verde-principal); margin-top: 1rem;">
-                    <strong>Total:</strong> R$ {{ pedido.total }}
-                </p>
+                <div style="margin-top: 1rem; text-align: left;">
+                    <p style="display: flex; justify-content: space-between; font-size: 1.05rem;">
+                        <span><strong>Subtotal:</strong></span>
+                        <span>R$ {{ pedido.total }}</span>
+                    </p>
+                    <p style="display: flex; justify-content: space-between; font-size: 1.05rem;">
+                        <span><strong>Frete:</strong></span>
+                        <span>R$ {{ pedido.valor_frete }}</span>
+                    </p>
+                    <p style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; color: var(--verde-principal);">
+                        <span>Total:</span>
+                        <span>R$ {{ pedido.total_com_frete }}</span>
+                    </p>
+                </div>
             </div>
 
             <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">

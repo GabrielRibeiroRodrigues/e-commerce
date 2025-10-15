@@ -16,16 +16,17 @@ class PedidoAdmin(admin.ModelAdmin):
         'id', 
         'usuario', 
         'status', 
-        'total', 
+        'total',
+        'valor_frete',
         'criado_em'
     ]
     list_filter = ['status', 'criado_em']
     search_fields = ['usuario__username', 'usuario__email', 'id']
-    readonly_fields = ['total', 'criado_em', 'atualizado_em']
+    readonly_fields = ['total', 'valor_frete', 'criado_em', 'atualizado_em']
     inlines = [ItemPedidoInline]
     fieldsets = (
         ('Informações do Pedido', {
-            'fields': ('usuario', 'status', 'total')
+            'fields': ('usuario', 'status', 'total', 'valor_frete')
         }),
         ('Informações de Entrega', {
             'fields': ('endereco', 'cidade', 'estado', 'cep', 'telefone')

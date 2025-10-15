@@ -66,7 +66,9 @@
                         </div>
 
                         <p><strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
-                        <p><strong>Total:</strong> R$ {{ pedido.total }}</p>
+                        <p><strong>Subtotal:</strong> R$ {{ pedido.total }}</p>
+                        <p><strong>Frete:</strong> R$ {{ pedido.valor_frete }}</p>
+                        <p><strong>Total Geral:</strong> <span style="color: var(--verde-principal); font-weight: bold;">R$ {{ pedido.total_com_frete }}</span></p>
                         <p><strong>Endereço:</strong> {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
 
                         <hr style="margin: 1rem 0;">
