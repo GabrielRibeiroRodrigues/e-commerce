@@ -13,6 +13,10 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from pedidos.models import Pedido, Pagamento
 from produtos.models import Produto
 from .models import ListaDesejo, ContaSocial
+from core.email_utils import enviar_email_boas_vindas
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 User = get_user_model()
@@ -36,7 +40,12 @@ def registro(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            
+            # Envia e-mail de boas-vindas
+            enviar_email_boas_vindas(user, request)
+            
             messages.success(request, 'Conta criada com sucesso! Bem-vindo à QUEOPS!')
+            logger.info(f'Novo usuário cadastrado: {user.username}')
             return redirect('core:home')
         else:
             messages.error(request, 'Erro ao criar conta. Verifique os dados informados.')

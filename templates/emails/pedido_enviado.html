@@ -1,0 +1,28 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Pedido #{{ pedido.id }} Enviado{% endblock %}
+
+{% block content %}
+<h2>Seu pedido foi enviado!</h2>
+
+<p>Olá, {{ pedido.usuario.first_name|default:pedido.usuario.username }}!</p>
+
+<p>Temos boas notícias! Seu pedido #{{ pedido.id }} já foi enviado e está a caminho.</p>
+
+<div class="info-box">
+    <p><strong>Informações de Envio:</strong></p>
+    <p>
+        <strong>Número do Pedido:</strong> #{{ pedido.id }}<br>
+        <strong>Data de Envio:</strong> {{ pedido.atualizado_em|date:"d/m/Y H:i" }}<br>
+        <strong>Status:</strong> {{ pedido.get_status_display }}
+    </p>
+</div>
+
+<p>Você pode acompanhar o status da entrega através do nosso site.</p>
+
+<center>
+    <a href="{{ site_url }}/usuarios/perfil/" class="button">Acompanhar Entrega</a>
+</center>
+
+<p>Em breve você receberá seus produtos. Obrigado pela preferência!</p>
+{% endblock %}

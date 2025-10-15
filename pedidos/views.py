@@ -1,5 +1,6 @@
 import re
 from decimal import Decimal
+import logging
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -8,6 +9,9 @@ from django.db import transaction
 from produtos.models import Produto
 from .models import Pedido, ItemPedido, Pagamento
 from .services import processar_pagamento, PagamentoErro
+from core.email_utils import enviar_email_confirmacao_pedido
+
+logger = logging.getLogger(__name__)
 
 
 def calcular_frete_por_cep(cep: str) -> Decimal:
@@ -269,6 +273,8 @@ def checkout(request):
                     if resultado_pagamento is not None:
                         try:
                             with transaction.atomic():
+                                logger.info(f'Iniciando criação de pedido para usuário {request.user.username}')
+                                
                                 pedido = Pedido.objects.create(
                                     usuario=request.user,
                                     total=total,
@@ -284,7 +290,15 @@ def checkout(request):
                                     produto = item_data['produto']
                                     quantidade = item_data['quantidade']
 
+                                    # Usa select_for_update para evitar race conditions
+                                    produto = Produto.objects.select_for_update().get(id=produto.id)
+                                    
                                     if produto.estoque < quantidade:
+                                        logger.warning(
+                                            f'Tentativa de compra com estoque insuficiente: '
+                                            f'Produto {produto.nome} (ID: {produto.id}), '
+                                            f'Estoque: {produto.estoque}, Solicitado: {quantidade}'
+                                        )
                                         raise ValueError(f'Estoque insuficiente para {produto.nome}')
 
                                     ItemPedido.objects.create(
@@ -296,6 +310,11 @@ def checkout(request):
 
                                     produto.estoque -= quantidade
                                     produto.save()
+                                    
+                                    logger.info(
+                                        f'Estoque atualizado: Produto {produto.nome} (ID: {produto.id}), '
+                                        f'Novo estoque: {produto.estoque}'
+                                    )
 
                                 Pagamento.objects.create(
                                     pedido=pedido,
@@ -316,10 +335,25 @@ def checkout(request):
                                 request.session['carrinho'] = {}
                                 request.session['checkout_info'] = {}
                                 request.session.modified = True
+                                
+                                logger.info(
+                                    f'Pedido #{pedido.id} criado com sucesso. '
+                                    f'Usuário: {request.user.username}, '
+                                    f'Total: R$ {valor_total_com_frete}, '
+                                    f'Método: {metodo_pagamento}'
+                                )
 
                         except Exception as exc:
+                            logger.error(
+                                f'Erro ao processar pedido: {str(exc)}. '
+                                f'Usuário: {request.user.username}',
+                                exc_info=True
+                            )
                             messages.error(request, f'Erro ao processar pedido: {str(exc)}')
                         else:
+                            # Envia e-mail de confirmação
+                            enviar_email_confirmacao_pedido(pedido, request)
+                            
                             messages.success(request, f'Pedido #{pedido.id} realizado com sucesso!')
                             if metodo_pagamento == 'boleto':
                                 messages.info(

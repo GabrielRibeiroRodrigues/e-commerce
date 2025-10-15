@@ -1,0 +1,85 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Pedido Confirmado #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<h2>Pedido Confirmado!</h2>
+
+<p>Olá, {{ pedido.usuario.first_name|default:pedido.usuario.username }}!</p>
+
+<p>Recebemos seu pedido e ele já está sendo processado. Você receberá atualizações sobre o status da entrega em breve.</p>
+
+<div class="info-box">
+    <p><strong>Resumo do Pedido:</strong></p>
+    <p>
+        <strong>Número do Pedido:</strong> #{{ pedido.id }}<br>
+        <strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}<br>
+        <strong>Status:</strong> {{ pedido.get_status_display }}<br>
+        <strong>Forma de Pagamento:</strong> {{ pagamento.get_metodo_display|default:"Não informado" }}
+    </p>
+</div>
+
+<h3>Itens do Pedido:</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Preço Unit.</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in pedido.itens.all %}
+        <tr>
+            <td>{{ item.produto.nome }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>R$ {{ item.preco_unitario }}</td>
+            <td>R$ {{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" style="text-align: right;"><strong>Subtotal:</strong></td>
+            <td><strong>R$ {{ pedido.total }}</strong></td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: right;"><strong>Frete:</strong></td>
+            <td><strong>R$ {{ pedido.valor_frete }}</strong></td>
+        </tr>
+        <tr style="font-size: 16px;">
+            <td colspan="3" style="text-align: right; color: #17633f;"><strong>TOTAL:</strong></td>
+            <td style="color: #17633f;"><strong>R$ {{ pedido.total_com_frete }}</strong></td>
+        </tr>
+    </tfoot>
+</table>
+
+<h3>Endereço de Entrega:</h3>
+<div class="info-box">
+    <p>
+        {{ pedido.endereco }}<br>
+        {{ pedido.cidade }} - {{ pedido.estado }}<br>
+        CEP: {{ pedido.cep }}<br>
+        Telefone: {{ pedido.telefone }}
+    </p>
+</div>
+
+{% if pagamento and pagamento.codigo_confirmacao %}
+<div class="info-box">
+    <p><strong>Informações de Pagamento:</strong></p>
+    <p>{{ pagamento.mensagem_retorno }}</p>
+    {% if pagamento.metodo == 'boleto' %}
+        <p><strong>Linha digitável:</strong><br>{{ pagamento.codigo_confirmacao }}</p>
+    {% elif pagamento.metodo == 'pix' %}
+        <p><strong>Código PIX:</strong> {{ pagamento.codigo_confirmacao }}</p>
+    {% endif %}
+</div>
+{% endif %}
+
+<center>
+    <a href="{{ site_url }}/usuarios/perfil/" class="button">Acompanhar Pedido</a>
+</center>
+
+<p>Obrigado por comprar na Farmácia QUEOPS!</p>
+{% endblock %}
