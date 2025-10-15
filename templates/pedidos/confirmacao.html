@@ -6,9 +6,13 @@
 <div class="container" style="max-width: 800px; margin-top: 3rem; margin-bottom: 3rem;">
     <div class="card">
         <div class="card-body" style="padding: 3rem; text-align: center;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+            <div style="width: 80px; height: 80px; background-color: var(--brand-050); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-600)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
             
-            <h1 style="color: var(--verde-principal); margin-bottom: 1rem;">
+            <h1 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 2rem;">
                 Pedido Confirmado!
             </h1>
             
@@ -16,8 +20,8 @@
                 Obrigado por comprar na Farmácia QUEOPS!
             </p>
 
-            <div style="background-color: var(--cinza-claro); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+            <div style="background-color: var(--surface-muted); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
                     Detalhes do Pedido
                 </h2>
 
@@ -47,9 +51,9 @@
             </div>
 
             {% if pagamento %}
-            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
-                    💳 Informações de Pagamento
+            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
+                    Informações de Pagamento
                 </h3>
                 <p><strong>Método:</strong> {{ pagamento.get_metodo_display }}</p>
                 <p><strong>Status:</strong> {{ pagamento.get_status_display }}</p>
@@ -65,9 +69,9 @@
             </div>
             {% endif %}
 
-            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
-                    📍 Endereço de Entrega
+            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
+                    Endereço de Entrega
                 </h3>
                 <p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
                 <p><strong>Cidade/UF:</strong> {{ pedido.cidade }}/{{ pedido.estado }}</p>
@@ -75,9 +79,9 @@
                 <p><strong>Telefone:</strong> {{ pedido.telefone }}</p>
             </div>
 
-            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
-                    🛒 Itens do Pedido
+            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
+                    Itens do Pedido
                 </h3>
                 <ul style="list-style: none; padding: 0;">
                     {% for item in pedido.itens.all %}

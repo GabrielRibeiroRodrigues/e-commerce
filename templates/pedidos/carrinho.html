@@ -4,10 +4,10 @@
 {% block title %}Carrinho de Compras - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-hero">
     <div class="container">
-        <h1>🛒 Meu Carrinho</h1>
-        <p>Revise seus produtos antes de finalizar a compra</p>
+        <h1 class="hero-heading">Meu Carrinho</h1>
+        <p class="hero-subtitle">Revise seus produtos antes de finalizar a compra</p>
     </div>
 </div>
 
@@ -67,7 +67,7 @@
                             <form action="{% url 'pedidos:remover_carrinho' item.produto.id %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger btn-small">
-                                    🗑️ Remover
+                                    Remover
                                 </button>
                             </form>
                         </div>

@@ -3,10 +3,10 @@
 {% block title %}Checkout - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-hero">
     <div class="container">
-        <h1>💳 Finalizar Compra</h1>
-        <p>Preencha os dados de entrega</p>
+        <h1 class="hero-heading">Finalizar Compra</h1>
+        <p class="hero-subtitle">Preencha os dados de entrega e pagamento</p>
     </div>
 </div>
 
@@ -16,8 +16,8 @@
         <div>
             <div class="card">
                 <div class="card-body">
-                    <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
-                        📍 Dados de Entrega
+                    <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
+                        Dados de Entrega
                     </h2>
 
                     <form method="post">
@@ -93,10 +93,10 @@
                             >
                         </div>
 
-                        <hr style="margin: 2rem 0;">
+                        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--surface-strong);">
 
-                        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
-                            💳 Pagamento
+                        <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
+                            Pagamento
                         </h2>
 
                         <div class="form-group">
@@ -177,8 +177,8 @@
                             O boleto será disponibilizado na página de confirmação e também enviado por e-mail.
                         </div>
 
-                        <button type="submit" name="finalizar_pedido" value="1" class="btn btn-primary btn-block" style="font-size: 1.2rem; margin-top: 1.5rem;">
-                            🎉 Confirmar Pedido
+                        <button type="submit" name="finalizar_pedido" value="1" class="btn btn-primary btn-block" style="font-size: 1.1rem; margin-top: 1.5rem;">
+                            Confirmar Pedido
                         </button>
                     </form>
                 </div>
@@ -189,8 +189,8 @@
         <div>
             <div class="card">
                 <div class="card-body">
-                    <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
-                        📋 Resumo do Pedido
+                    <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
+                        Resumo do Pedido
                     </h2>
 
                     <div style="max-height: 400px; overflow-y: auto; margin-bottom: 1.5rem;">
