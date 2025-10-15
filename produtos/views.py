@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Produto, Categoria
+from usuarios.models import ListaDesejo
 
 
 def lista_produtos(request):
@@ -31,12 +32,20 @@ def lista_produtos(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    wishlist_ids = set()
+    if request.user.is_authenticated:
+        wishlist_ids = set(
+            ListaDesejo.objects.filter(usuario=request.user)
+            .values_list('produto_id', flat=True)
+        )
+
     context = {
         'page_obj': page_obj,
         'categorias': categorias,
         'categoria_selecionada': categoria_slug,
         'busca': busca,
         'ordem': ordem,
+        'wishlist_ids': wishlist_ids,
     }
     return render(request, 'produtos/lista.html', context)
 
@@ -51,8 +60,16 @@ def detalhe_produto(request, slug):
         ativo=True
     ).exclude(id=produto.id)[:4]
     
+    em_lista_desejos = False
+    if request.user.is_authenticated:
+        em_lista_desejos = ListaDesejo.objects.filter(
+            usuario=request.user,
+            produto=produto
+        ).exists()
+
     context = {
         'produto': produto,
         'produtos_relacionados': produtos_relacionados,
+        'em_lista_desejos': em_lista_desejos,
     }
     return render(request, 'produtos/detalhe.html', context)

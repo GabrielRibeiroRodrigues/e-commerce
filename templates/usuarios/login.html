@@ -40,6 +40,19 @@
                 </button>
             </form>
 
+            {% if google_login_enabled %}
+                <div style="margin: 1.5rem 0; text-align: center; color: var(--cinza-escuro);">
+                    <span>ou</span>
+                </div>
+                <a
+                    href="{% url 'usuarios:login_google' %}{% if google_next %}?next={{ google_next|urlencode }}{% endif %}"
+                    class="btn btn-google btn-block"
+                    style="margin-bottom: 1rem;"
+                >
+                    Entrar com Google
+                </a>
+            {% endif %}
+
             <hr style="margin: 2rem 0;">
 
             <p style="text-align: center;">

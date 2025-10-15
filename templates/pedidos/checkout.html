@@ -93,6 +93,90 @@
                             >
                         </div>
 
+                        <hr style="margin: 2rem 0;">
+
+                        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                            💳 Pagamento
+                        </h2>
+
+                        <div class="form-group">
+                            <label>Forma de Pagamento *</label>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <label class="radio-inline">
+                                    <input type="radio" name="metodo_pagamento" value="cartao_credito" {% if pagamento_data.metodo_pagamento == 'cartao_credito' %}checked{% endif %}>
+                                    Cartão de Crédito
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="metodo_pagamento" value="pix" {% if pagamento_data.metodo_pagamento == 'pix' %}checked{% endif %}>
+                                    Pix
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="metodo_pagamento" value="boleto" {% if pagamento_data.metodo_pagamento == 'boleto' %}checked{% endif %}>
+                                    Boleto Bancário
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="cartao-fields" style="margin-top: 1rem;">
+                            <div class="form-group">
+                                <label for="numero_cartao">Número do Cartão *</label>
+                                <input 
+                                    type="text" 
+                                    name="numero_cartao" 
+                                    id="numero_cartao" 
+                                    class="form-control"
+                                    placeholder="0000 0000 0000 0000"
+                                    value="{{ pagamento_data.numero_cartao }}"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nome_portador">Nome do Titular *</label>
+                                <input 
+                                    type="text" 
+                                    name="nome_portador" 
+                                    id="nome_portador" 
+                                    class="form-control"
+                                    placeholder="Nome impresso no cartão"
+                                    value="{{ pagamento_data.nome_portador }}"
+                                >
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="validade">Validade (MM/AA) *</label>
+                                    <input 
+                                        type="text" 
+                                        name="validade" 
+                                        id="validade" 
+                                        class="form-control"
+                                        placeholder="MM/AA"
+                                        value="{{ pagamento_data.validade }}"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cvv">CVV *</label>
+                                    <input 
+                                        type="text" 
+                                        name="cvv" 
+                                        id="cvv" 
+                                        class="form-control"
+                                        placeholder="3 ou 4 dígitos"
+                                        value="{{ pagamento_data.cvv }}"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="pix-info" class="payment-hint" style="display: none; margin-top: 1.5rem;">
+                            O código Pix será gerado automaticamente após a confirmação do pedido.
+                        </div>
+
+                        <div id="boleto-info" class="payment-hint" style="display: none; margin-top: 1.5rem;">
+                            O boleto será disponibilizado na página de confirmação e também enviado por e-mail.
+                        </div>
+
                         <button type="submit" name="finalizar_pedido" value="1" class="btn btn-primary btn-block" style="font-size: 1.2rem; margin-top: 1.5rem;">
                             🎉 Confirmar Pedido
                         </button>
@@ -153,4 +237,35 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var metodoInputs = document.querySelectorAll('input[name="metodo_pagamento"]');
+        var cartaoFields = document.getElementById('cartao-fields');
+        var pixInfo = document.getElementById('pix-info');
+        var boletoInfo = document.getElementById('boleto-info');
+
+        function atualizarCamposPagamento() {
+            var selecionado = document.querySelector('input[name="metodo_pagamento"]:checked');
+            var metodo = selecionado ? selecionado.value : 'cartao_credito';
+
+            if (metodo === 'cartao_credito') {
+                cartaoFields.style.display = 'block';
+            } else {
+                cartaoFields.style.display = 'none';
+            }
+
+            pixInfo.style.display = metodo === 'pix' ? 'block' : 'none';
+            boletoInfo.style.display = metodo === 'boleto' ? 'block' : 'none';
+        }
+
+        metodoInputs.forEach(function (input) {
+            input.addEventListener('change', atualizarCamposPagamento);
+        });
+
+        atualizarCamposPagamento();
+    })();
+</script>
 {% endblock %}

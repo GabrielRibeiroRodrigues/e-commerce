@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from produtos.models import Produto
-from .models import Pedido, ItemPedido
+from .models import Pedido, ItemPedido, Pagamento
+from .services import processar_pagamento, PagamentoErro
 
 
 def calcular_frete_por_cep(cep: str) -> Decimal:
@@ -180,6 +181,14 @@ def checkout(request):
         'telefone': '',
     }
 
+    pagamento_data = {
+        'metodo_pagamento': 'cartao_credito',
+        'numero_cartao': '',
+        'nome_portador': '',
+        'validade': '',
+        'cvv': '',
+    }
+
     if request.method == 'POST':
         form_data.update({
             'endereco': request.POST.get('endereco', '').strip(),
@@ -187,6 +196,14 @@ def checkout(request):
             'estado': request.POST.get('estado', '').strip(),
             'cep': request.POST.get('cep', '').strip(),
             'telefone': request.POST.get('telefone', '').strip(),
+        })
+
+        pagamento_data.update({
+            'metodo_pagamento': request.POST.get('metodo_pagamento', 'cartao_credito'),
+            'numero_cartao': request.POST.get('numero_cartao', '').strip(),
+            'nome_portador': request.POST.get('nome_portador', '').strip(),
+            'validade': request.POST.get('validade', '').strip(),
+            'cvv': request.POST.get('cvv', '').strip(),
         })
 
         if 'calcular_frete' in request.POST:
@@ -210,6 +227,7 @@ def checkout(request):
                 'valor_frete': valor_frete,
                 'total_geral': total + (valor_frete or Decimal('0')),
                 'form_data': form_data,
+                'pagamento_data': pagamento_data,
             }
             return render(request, 'pedidos/checkout.html', context)
 
@@ -222,45 +240,98 @@ def checkout(request):
                 except ValueError as exc:
                     messages.error(request, str(exc))
                 else:
+                    valor_total_com_frete = total + valor_frete
+                    metodo_pagamento = pagamento_data['metodo_pagamento']
+                    dados_pagamento = {
+                        'numero_cartao': pagamento_data['numero_cartao'],
+                        'nome_portador': pagamento_data['nome_portador'],
+                        'validade': pagamento_data['validade'],
+                        'cvv': pagamento_data['cvv'],
+                    }
+
                     try:
-                        with transaction.atomic():
-                            pedido = Pedido.objects.create(
-                                usuario=request.user,
-                                total=total,
-                                valor_frete=valor_frete,
-                                endereco=form_data['endereco'],
-                                cidade=form_data['cidade'],
-                                estado=form_data['estado'],
-                                cep=form_data['cep'],
-                                telefone=form_data['telefone'],
+                        resultado_pagamento = processar_pagamento(
+                            valor_total_com_frete,
+                            metodo_pagamento,
+                            dados_pagamento
+                        )
+                    except PagamentoErro as exc:
+                        messages.error(request, str(exc))
+                        resultado_pagamento = None
+                    else:
+                        if resultado_pagamento.get('status') == 'recusado':
+                            messages.error(
+                                request,
+                                resultado_pagamento.get('mensagem', 'Pagamento não autorizado.')
                             )
+                            resultado_pagamento = None
 
-                            for item_data in itens_carrinho:
-                                produto = item_data['produto']
-                                quantidade = item_data['quantidade']
-
-                                if produto.estoque < quantidade:
-                                    raise ValueError(f'Estoque insuficiente para {produto.nome}')
-
-                                ItemPedido.objects.create(
-                                    pedido=pedido,
-                                    produto=produto,
-                                    quantidade=quantidade,
-                                    preco_unitario=produto.preco_final,
+                    if resultado_pagamento is not None:
+                        try:
+                            with transaction.atomic():
+                                pedido = Pedido.objects.create(
+                                    usuario=request.user,
+                                    total=total,
+                                    valor_frete=valor_frete,
+                                    endereco=form_data['endereco'],
+                                    cidade=form_data['cidade'],
+                                    estado=form_data['estado'],
+                                    cep=form_data['cep'],
+                                    telefone=form_data['telefone'],
                                 )
 
-                                produto.estoque -= quantidade
-                                produto.save()
+                                for item_data in itens_carrinho:
+                                    produto = item_data['produto']
+                                    quantidade = item_data['quantidade']
 
-                            request.session['carrinho'] = {}
-                            request.session['checkout_info'] = {}
-                            request.session.modified = True
+                                    if produto.estoque < quantidade:
+                                        raise ValueError(f'Estoque insuficiente para {produto.nome}')
 
+                                    ItemPedido.objects.create(
+                                        pedido=pedido,
+                                        produto=produto,
+                                        quantidade=quantidade,
+                                        preco_unitario=produto.preco_final,
+                                    )
+
+                                    produto.estoque -= quantidade
+                                    produto.save()
+
+                                Pagamento.objects.create(
+                                    pedido=pedido,
+                                    metodo=metodo_pagamento,
+                                    status=resultado_pagamento.get('status', 'pendente'),
+                                    valor=valor_total_com_frete,
+                                    transacao_id=resultado_pagamento.get('transacao_id', ''),
+                                    codigo_confirmacao=resultado_pagamento.get('codigo_confirmacao', ''),
+                                    mensagem_retorno=resultado_pagamento.get('mensagem', ''),
+                                    cartao_final=resultado_pagamento.get('cartao_final', ''),
+                                    nome_portador=resultado_pagamento.get('nome_portador', ''),
+                                )
+
+                                if resultado_pagamento.get('status') == 'autorizado' and pedido.status != 'processando':
+                                    pedido.status = 'processando'
+                                    pedido.save(update_fields=['status'])
+
+                                request.session['carrinho'] = {}
+                                request.session['checkout_info'] = {}
+                                request.session.modified = True
+
+                        except Exception as exc:
+                            messages.error(request, f'Erro ao processar pedido: {str(exc)}')
+                        else:
                             messages.success(request, f'Pedido #{pedido.id} realizado com sucesso!')
+                            if metodo_pagamento == 'boleto':
+                                messages.info(
+                                    request,
+                                    'Boleto gerado com sucesso. O pedido ficará pendente até a compensação.'
+                                )
+                            if metodo_pagamento == 'pix':
+                                messages.info(
+                                    request,
+                                    'Pagamento via Pix confirmado. Você receberá o comprovante por e-mail.'
+                                )
                             return redirect('pedidos:confirmacao', pedido_id=pedido.id)
-
-                    except Exception as exc:
-                        messages.error(request, f'Erro ao processar pedido: {str(exc)}')
 
         # Se chegou aqui, houve erro de validação
         context = {
@@ -269,6 +340,7 @@ def checkout(request):
             'valor_frete': valor_frete,
             'total_geral': total + (valor_frete or Decimal('0')),
             'form_data': form_data,
+            'pagamento_data': pagamento_data,
         }
         return render(request, 'pedidos/checkout.html', context)
 
@@ -278,6 +350,7 @@ def checkout(request):
         'valor_frete': valor_frete,
         'total_geral': total + (valor_frete or Decimal('0')),
         'form_data': form_data,
+        'pagamento_data': pagamento_data,
     }
     return render(request, 'pedidos/checkout.html', context)
 
@@ -286,8 +359,13 @@ def checkout(request):
 def confirmacao(request, pedido_id):
     """View para confirmação de pedido."""
     pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    try:
+        pagamento = pedido.pagamento
+    except Pagamento.DoesNotExist:
+        pagamento = None
     
     context = {
         'pedido': pedido,
+        'pagamento': pagamento,
     }
     return render(request, 'pedidos/confirmacao.html', context)

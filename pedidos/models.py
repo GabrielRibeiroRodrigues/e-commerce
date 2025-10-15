@@ -79,3 +79,47 @@ class ItemPedido(models.Model):
     def subtotal(self):
         """Calcula o subtotal do item."""
         return self.quantidade * self.preco_unitario
+
+
+class Pagamento(models.Model):
+    """Registra as informações de pagamento de um pedido."""
+
+    METODO_CHOICES = [
+        ('cartao_credito', 'Cartão de Crédito'),
+        ('pix', 'Pix'),
+        ('boleto', 'Boleto Bancário'),
+    ]
+
+    STATUS_CHOICES = [
+        ('pendente', 'Pendente'),
+        ('autorizado', 'Autorizado'),
+        ('recusado', 'Recusado'),
+    ]
+
+    pedido = models.OneToOneField(
+        Pedido,
+        on_delete=models.CASCADE,
+        related_name='pagamento'
+    )
+    metodo = models.CharField(max_length=20, choices=METODO_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente')
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    transacao_id = models.CharField(max_length=64, blank=True)
+    codigo_confirmacao = models.CharField(
+        max_length=128,
+        blank=True,
+        help_text='Código retornado pelo provedor de pagamento'
+    )
+    mensagem_retorno = models.TextField(blank=True)
+    cartao_final = models.CharField(max_length=4, blank=True)
+    nome_portador = models.CharField(max_length=150, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Pagamento'
+        verbose_name_plural = 'Pagamentos'
+        ordering = ['-criado_em']
+
+    def __str__(self):
+        return f'Pagamento #{self.id} - Pedido #{self.pedido_id}'

@@ -17,6 +17,7 @@ E-commerce completo desenvolvido em Django para a **Farmácia QUEOPS**, com sist
 - ✅ Carrinho de compras (adicionar, remover, atualizar quantidades)
 - ✅ Sistema de checkout com informações de entrega
 - ✅ Registro e login de usuários
+- ✅ Login Social com Google
 - ✅ Perfil do usuário com histórico de pedidos
 - ✅ Produtos em destaque e promoções
 
@@ -90,6 +91,27 @@ python manage.py runserver
 ```
 
 Acesse: `http://127.0.0.1:8000/`
+
+### ☁️ Login com Google (opcional)
+
+Para habilitar o login social, crie credenciais OAuth 2.0 no console do Google Cloud e defina as variáveis de ambiente antes de subir o servidor:
+
+```bash
+set GOOGLE_CLIENT_ID=seu_client_id      # Windows PowerShell/CMD
+set GOOGLE_CLIENT_SECRET=sua_chave
+
+# No Linux/macOS:
+export GOOGLE_CLIENT_ID=seu_client_id
+export GOOGLE_CLIENT_SECRET=sua_chave
+```
+
+Configure o URI de redirecionamento como:
+
+```
+http://localhost:8000/usuarios/login/google/callback/
+```
+
+Com os dados definidos, o botão "Entrar com Google" aparecerá automaticamente na tela de login.
 
 ## 🔐 Credenciais de Acesso
 
@@ -169,12 +191,12 @@ O projeto utiliza SQLite por padrão. Para usar PostgreSQL ou MySQL:
 
 ## 🚧 Próximas Melhorias (Sugestões)
 
-- [ ] Sistema de pagamento integrado
+- [x] Sistema de pagamento integrado
 - [ ] Envio de e-mails transacionais
 - [ ] Sistema de avaliações de produtos
-- [ ] Wishlist (lista de desejos)
+- [x] Wishlist (lista de desejos)
 - [ ] Cupons de desconto
-- [ ] Cálculo de frete por CEP
+- [x] Cálculo de frete por CEP
 - [ ] Dashboard de vendas para admin
 - [ ] API REST para integração mobile
 - [ ] Testes automatizados

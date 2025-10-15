@@ -105,6 +105,33 @@ body {
     font-weight: bold;
 }
 
+.navbar nav a.btn-wishlist {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    position: relative;
+}
+
+.navbar nav a.btn-wishlist:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--branco);
+}
+
+.navbar nav a.btn-wishlist .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--amarelo);
+    color: var(--preto);
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
 /* Container Principal */
 .container {
     max-width: 1200px;
@@ -201,6 +228,22 @@ footer a {
 
 .btn-secondary:hover {
     background-color: #5a6268;
+}
+
+.btn-google {
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.btn-google:hover {
+    background-color: #f1f3f4;
+    color: #202124;
 }
 
 .btn-danger {
@@ -339,6 +382,15 @@ footer a {
     color: var(--vermelho);
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+.payment-hint {
+    border: 1px dashed var(--verde-principal);
+    background-color: rgba(45, 134, 89, 0.08);
+    color: var(--cinza-escuro);
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
 }
 
 /* Tabelas */

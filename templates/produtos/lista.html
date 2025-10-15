@@ -113,6 +113,29 @@
                             <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
                                 Ver Detalhes
                             </a>
+                            {% if user.is_authenticated %}
+                                {% if produto.id in wishlist_ids %}
+                                    <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" style="margin-top: 0.5rem;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" class="btn btn-secondary btn-block">
+                                            Remover da Lista de Desejos
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" style="margin-top: 0.5rem;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" class="btn btn-secondary btn-block">
+                                            Salvar na Lista de Desejos
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
+                                    Entrar para salvar na lista
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                     {% endfor %}

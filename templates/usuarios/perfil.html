@@ -69,6 +69,14 @@
                         <p><strong>Subtotal:</strong> R$ {{ pedido.total }}</p>
                         <p><strong>Frete:</strong> R$ {{ pedido.valor_frete }}</p>
                         <p><strong>Total Geral:</strong> <span style="color: var(--verde-principal); font-weight: bold;">R$ {{ pedido.total_com_frete }}</span></p>
+                        {% if pedido.pagamento_info %}
+                            <p>
+                                <strong>Pagamento:</strong> {{ pedido.pagamento_info.get_metodo_display }} - {{ pedido.pagamento_info.get_status_display }}
+                                {% if pedido.pagamento_info.cartao_final %}
+                                    (final {{ pedido.pagamento_info.cartao_final }})
+                                {% endif %}
+                            </p>
+                        {% endif %}
                         <p><strong>Endereço:</strong> {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
 
                         <hr style="margin: 1rem 0;">

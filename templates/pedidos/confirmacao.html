@@ -46,6 +46,25 @@
                 </div>
             </div>
 
+            {% if pagamento %}
+            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
+                    💳 Informações de Pagamento
+                </h3>
+                <p><strong>Método:</strong> {{ pagamento.get_metodo_display }}</p>
+                <p><strong>Status:</strong> {{ pagamento.get_status_display }}</p>
+                {% if pagamento.cartao_final %}
+                    <p><strong>Cartão final:</strong> **** **** **** {{ pagamento.cartao_final }}</p>
+                {% endif %}
+                {% if pagamento.codigo_confirmacao %}
+                    <p><strong>Código/Comprovante:</strong> {{ pagamento.codigo_confirmacao }}</p>
+                {% endif %}
+                {% if pagamento.mensagem_retorno %}
+                    <p style="color: var(--cinza-escuro);">{{ pagamento.mensagem_retorno }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
                 <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
                     📍 Endereço de Entrega

@@ -90,6 +90,7 @@
             {% if produto.estoque > 0 %}
                 <form action="{% url 'pedidos:adicionar_carrinho' produto.id %}" method="post" style="margin-bottom: 1rem;">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
                         <label for="quantidade" style="font-weight: bold;">Quantidade:</label>
                         <input 
@@ -110,6 +111,30 @@
                 <button class="btn btn-secondary btn-block" disabled style="font-size: 1.2rem; padding: 1rem;">
                     Produto Indisponível
                 </button>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                {% if em_lista_desejos %}
+                    <form action="{% url 'usuarios:remover_desejo' produto.id %}" method="post" style="margin-bottom: 1rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="btn btn-secondary btn-block">
+                            ❌ Remover da Lista de Desejos
+                        </button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'usuarios:adicionar_desejo' produto.id %}" method="post" style="margin-bottom: 1rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="btn btn-secondary btn-block">
+                            ❤️ Adicionar à Lista de Desejos
+                        </button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'usuarios:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn-secondary btn-block" style="margin-bottom: 1rem;">
+                    ❤️ Faça login para salvar na lista de desejos
+                </a>
             {% endif %}
 
             <a href="{% url 'produtos:lista' %}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
