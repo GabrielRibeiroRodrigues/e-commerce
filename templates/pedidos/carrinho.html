@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Carrinho de Compras - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>🛒 Meu Carrinho</h1>
+        <p>Revise seus produtos antes de finalizar a compra</p>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 2rem;">
+    {% if itens_carrinho %}
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <!-- Lista de Itens -->
+            <div>
+                {% for item in itens_carrinho %}
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body" style="display: grid; grid-template-columns: 120px 1fr auto; gap: 1.5rem; align-items: center;">
+                        <!-- Imagem -->
+                        <div>
+                            {% if item.produto.imagem %}
+                                <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" style="width: 100%; border-radius: 8px;">
+                            {% else %}
+                                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ item.produto.nome }}" style="width: 100%; border-radius: 8px;">
+                            {% endif %}
+                        </div>
+
+                        <!-- Informações do Produto -->
+                        <div>
+                            <h3 style="color: var(--verde-principal); margin-bottom: 0.5rem;">
+                                <a href="{% url 'produtos:detalhe' item.produto.slug %}" style="color: inherit; text-decoration: none;">
+                                    {{ item.produto.nome }}
+                                </a>
+                            </h3>
+                            <p style="color: var(--cinza-escuro); margin-bottom: 0.5rem;">
+                                {{ item.produto.categoria.nome }}
+                            </p>
+                            <p style="font-weight: bold; font-size: 1.2rem; color: var(--verde-principal);">
+                                R$ {{ item.produto.preco_final }} cada
+                            </p>
+
+                            <!-- Atualizar Quantidade -->
+                            <form action="{% url 'pedidos:atualizar_carrinho' item.produto.id %}" method="post" style="display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem;">
+                                {% csrf_token %}
+                                <label for="quantidade-{{ item.produto.id }}">Quantidade:</label>
+                                <input 
+                                    type="number" 
+                                    name="quantidade" 
+                                    id="quantidade-{{ item.produto.id }}" 
+                                    value="{{ item.quantidade }}" 
+                                    min="1" 
+                                    max="{{ item.produto.estoque }}"
+                                    style="width: 80px; padding: 0.5rem; border: 1px solid var(--cinza-medio); border-radius: 5px;"
+                                >
+                                <button type="submit" class="btn btn-primary btn-small">Atualizar</button>
+                            </form>
+                        </div>
+
+                        <!-- Subtotal e Remover -->
+                        <div style="text-align: right;">
+                            <p style="font-size: 1.5rem; font-weight: bold; color: var(--verde-principal); margin-bottom: 1rem;">
+                                R$ {{ item.subtotal }}
+                            </p>
+                            <form action="{% url 'pedidos:remover_carrinho' item.produto.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-small">
+                                    🗑️ Remover
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <a href="{% url 'produtos:lista' %}" class="btn btn-secondary" style="margin-top: 1rem;">
+                    ← Continuar Comprando
+                </a>
+            </div>
+
+            <!-- Resumo do Pedido -->
+            <aside>
+                <div class="card" style="position: sticky; top: 100px;">
+                    <div class="card-body">
+                        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                            Resumo do Pedido
+                        </h2>
+
+                        <div style="border-bottom: 1px solid var(--cinza-medio); padding-bottom: 1rem; margin-bottom: 1rem;">
+                            <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Subtotal:</span>
+                                <strong>R$ {{ total }}</strong>
+                            </p>
+                            <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Frete:</span>
+                                <strong>Grátis</strong>
+                            </p>
+                        </div>
+
+                        <p style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; color: var(--verde-principal); margin-bottom: 1.5rem;">
+                            <span>Total:</span>
+                            <span>R$ {{ total }}</span>
+                        </p>
+
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'pedidos:checkout' %}" class="btn btn-primary btn-block" style="font-size: 1.1rem;">
+                                Finalizar Compra
+                            </a>
+                        {% else %}
+                            <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" class="btn btn-primary btn-block" style="font-size: 1.1rem;">
+                                Fazer Login para Comprar
+                            </a>
+                            <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: var(--cinza-escuro);">
+                                ou <a href="{% url 'usuarios:registro' %}" style="color: var(--verde-principal);">Cadastre-se</a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+        </div>
+    {% else %}
+        <div class="empty-cart">
+            <h2>Seu carrinho está vazio</h2>
+            <p>Adicione produtos ao seu carrinho para continuar comprando.</p>
+            <a href="{% url 'produtos:lista' %}" class="btn btn-primary" style="margin-top: 1rem;">
+                Ver Produtos
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

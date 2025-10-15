@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedido Confirmado - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin-top: 3rem; margin-bottom: 3rem;">
+    <div class="card">
+        <div class="card-body" style="padding: 3rem; text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+            
+            <h1 style="color: var(--verde-principal); margin-bottom: 1rem;">
+                Pedido Confirmado!
+            </h1>
+            
+            <p style="font-size: 1.2rem; color: var(--cinza-escuro); margin-bottom: 2rem;">
+                Obrigado por comprar na Farmácia QUEOPS!
+            </p>
+
+            <div style="background-color: var(--cinza-claro); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                    Detalhes do Pedido
+                </h2>
+
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                    <strong>Número do Pedido:</strong> #{{ pedido.id }}
+                </p>
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                    <strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}
+                </p>
+                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
+                    <strong>Status:</strong> {{ pedido.get_status_display }}
+                </p>
+                <p style="font-size: 1.5rem; font-weight: bold; color: var(--verde-principal); margin-top: 1rem;">
+                    <strong>Total:</strong> R$ {{ pedido.total }}
+                </p>
+            </div>
+
+            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
+                    📍 Endereço de Entrega
+                </h3>
+                <p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
+                <p><strong>Cidade/UF:</strong> {{ pedido.cidade }}/{{ pedido.estado }}</p>
+                <p><strong>CEP:</strong> {{ pedido.cep }}</p>
+                <p><strong>Telefone:</strong> {{ pedido.telefone }}</p>
+            </div>
+
+            <div style="background-color: var(--branco); padding: 2rem; border: 2px solid var(--cinza-medio); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="color: var(--verde-principal); margin-bottom: 1rem;">
+                    🛒 Itens do Pedido
+                </h3>
+                <ul style="list-style: none; padding: 0;">
+                    {% for item in pedido.itens.all %}
+                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--cinza-medio);">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <strong>{{ item.quantidade }}x</strong> {{ item.produto.nome }}
+                                    <br>
+                                    <span style="color: var(--cinza-escuro); font-size: 0.9rem;">
+                                        R$ {{ item.preco_unitario }} cada
+                                    </span>
+                                </div>
+                                <strong style="color: var(--verde-principal);">
+                                    R$ {{ item.subtotal }}
+                                </strong>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <p style="color: var(--cinza-escuro); margin-bottom: 2rem;">
+                Você receberá um e-mail com mais informações sobre o acompanhamento do seu pedido.
+            </p>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'usuarios:perfil' %}" class="btn btn-primary">
+                    Ver Meus Pedidos
+                </a>
+                <a href="{% url 'produtos:lista' %}" class="btn btn-secondary">
+                    Continuar Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

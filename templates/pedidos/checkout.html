@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>💳 Finalizar Compra</h1>
+        <p>Preencha os dados de entrega</p>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+        <!-- Formulário de Entrega -->
+        <div>
+            <div class="card">
+                <div class="card-body">
+                    <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                        📍 Dados de Entrega
+                    </h2>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="endereco">Endereço Completo *</label>
+                            <input 
+                                type="text" 
+                                name="endereco" 
+                                id="endereco" 
+                                class="form-control" 
+                                placeholder="Rua, número, complemento"
+                                required
+                            >
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="cidade">Cidade *</label>
+                                <input 
+                                    type="text" 
+                                    name="cidade" 
+                                    id="cidade" 
+                                    class="form-control" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estado">UF *</label>
+                                <input 
+                                    type="text" 
+                                    name="estado" 
+                                    id="estado" 
+                                    class="form-control" 
+                                    maxlength="2" 
+                                    placeholder="SP"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cep">CEP *</label>
+                            <input 
+                                type="text" 
+                                name="cep" 
+                                id="cep" 
+                                class="form-control" 
+                                placeholder="00000-000"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefone">Telefone *</label>
+                            <input 
+                                type="tel" 
+                                name="telefone" 
+                                id="telefone" 
+                                class="form-control" 
+                                placeholder="(00) 00000-0000"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" style="font-size: 1.2rem; margin-top: 1.5rem;">
+                            🎉 Confirmar Pedido
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo do Pedido -->
+        <div>
+            <div class="card">
+                <div class="card-body">
+                    <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem;">
+                        📋 Resumo do Pedido
+                    </h2>
+
+                    <div style="max-height: 400px; overflow-y: auto; margin-bottom: 1.5rem;">
+                        {% for item in itens_carrinho %}
+                        <div style="padding: 1rem 0; border-bottom: 1px solid var(--cinza-medio);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <strong>{{ item.produto.nome }}</strong>
+                                <span>{{ item.quantidade }}x</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; color: var(--cinza-escuro);">
+                                <span>R$ {{ item.produto.preco_final }} cada</span>
+                                <strong style="color: var(--verde-principal);">R$ {{ item.subtotal }}</strong>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div style="border-top: 2px solid var(--verde-principal); padding-top: 1rem;">
+                        <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Subtotal:</span>
+                            <strong>R$ {{ total }}</strong>
+                        </p>
+                        <p style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <span>Frete:</span>
+                            <strong style="color: var(--verde-principal);">Grátis</strong>
+                        </p>
+                        <p style="display: flex; justify-content: space-between; font-size: 1.8rem; font-weight: bold; color: var(--verde-principal);">
+                            <span>Total:</span>
+                            <span>R$ {{ total }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{% url 'pedidos:carrinho' %}" class="btn btn-secondary btn-block" style="margin-top: 1rem;">
+                ← Voltar ao Carrinho
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

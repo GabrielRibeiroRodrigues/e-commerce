@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="page-header">
+    <div class="container">
+        <h1>🏥 Bem-vindo à Farmácia QUEOPS</h1>
+        <p>Sua saúde e bem-estar são nossa prioridade</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Barra de Busca -->
+    <div class="search-bar">
+        <form action="{% url 'produtos:lista' %}" method="get" class="search-form">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Buscar produtos..." 
+                class="form-control"
+                value="{{ request.GET.q }}"
+            >
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </div>
+
+    {% if produtos_promocao %}
+    <!-- Produtos em Promoção -->
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
+            🔥 Promoções Imperdíveis
+        </h2>
+        <div class="produtos-grid">
+            {% for produto in produtos_promocao %}
+            <div class="card">
+                {% if produto.imagem %}
+                    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                {% else %}
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge-promocao">EM PROMOÇÃO</span>
+                    <h3 class="card-title">{{ produto.nome }}</h3>
+                    <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
+                    <div>
+                        <span class="preco-antigo">R$ {{ produto.preco }}</span>
+                        <div class="preco preco-promocional">R$ {{ produto.preco_promocional }}</div>
+                    </div>
+                    {% if produto.estoque < 10 %}
+                        <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
+                    {% else %}
+                        <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
+                    {% endif %}
+                    <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
+                        Ver Detalhes
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if produtos_destaque %}
+    <!-- Produtos em Destaque -->
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
+            ⭐ Produtos em Destaque
+        </h2>
+        <div class="produtos-grid">
+            {% for produto in produtos_destaque %}
+            <div class="card">
+                {% if produto.imagem %}
+                    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                {% else %}
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge-destaque">DESTAQUE</span>
+                    <h3 class="card-title">{{ produto.nome }}</h3>
+                    <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
+                    <div class="preco">R$ {{ produto.preco_final }}</div>
+                    {% if produto.estoque < 10 %}
+                        <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
+                    {% else %}
+                        <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
+                    {% endif %}
+                    <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
+                        Ver Detalhes
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Call to Action -->
+    <div style="text-align: center; padding: 3rem 0;">
+        <h2 style="color: var(--verde-principal); margin-bottom: 1rem;">
+            Explore Todos os Nossos Produtos
+        </h2>
+        <a href="{% url 'produtos:lista' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+            Ver Catálogo Completo
+        </a>
+    </div>
+</div>
+{% endblock %}

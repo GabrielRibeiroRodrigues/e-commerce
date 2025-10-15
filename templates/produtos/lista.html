@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Produtos - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1>📦 Nossos Produtos</h1>
+        <p>Encontre tudo o que você precisa para sua saúde</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Barra de Busca -->
+    <div class="search-bar">
+        <form method="get" class="search-form">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Buscar produtos..." 
+                class="form-control"
+                value="{{ busca }}"
+            >
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-top: 2rem;">
+        <!-- Filtros Laterais -->
+        <aside>
+            <div class="filters">
+                <h3>Categorias</h3>
+                <div class="filter-group">
+                    <a href="{% url 'produtos:lista' %}" 
+                       class="filter-link {% if not categoria_selecionada %}active{% endif %}">
+                        Todas as Categorias
+                    </a>
+                    {% for categoria in categorias %}
+                        <a href="?categoria={{ categoria.slug }}" 
+                           class="filter-link {% if categoria_selecionada == categoria.slug %}active{% endif %}">
+                            {{ categoria.nome }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="filters">
+                <h3>Ordenar por</h3>
+                <div class="filter-group">
+                    <a href="?ordem=-criado_em{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="filter-link {% if ordem == '-criado_em' %}active{% endif %}">
+                        Mais Recentes
+                    </a>
+                    <a href="?ordem=nome{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="filter-link {% if ordem == 'nome' %}active{% endif %}">
+                        Nome (A-Z)
+                    </a>
+                    <a href="?ordem=preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="filter-link {% if ordem == 'preco' %}active{% endif %}">
+                        Menor Preço
+                    </a>
+                    <a href="?ordem=-preco{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}" 
+                       class="filter-link {% if ordem == '-preco' %}active{% endif %}">
+                        Maior Preço
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Lista de Produtos -->
+        <div>
+            {% if busca %}
+                <p style="margin-bottom: 1rem; color: var(--cinza-escuro);">
+                    Resultados para: <strong>{{ busca }}</strong> ({{ page_obj.paginator.count }} produtos encontrados)
+                </p>
+            {% endif %}
+
+            {% if page_obj %}
+                <div class="produtos-grid">
+                    {% for produto in page_obj %}
+                    <div class="card">
+                        {% if produto.imagem %}
+                            <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                        {% else %}
+                            <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                        {% endif %}
+                        <div class="card-body">
+                            {% if produto.tem_promocao %}
+                                <span class="badge-promocao">PROMOÇÃO</span>
+                            {% endif %}
+                            {% if produto.destaque %}
+                                <span class="badge-destaque">DESTAQUE</span>
+                            {% endif %}
+                            <h3 class="card-title">{{ produto.nome }}</h3>
+                            <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
+                            
+                            {% if produto.tem_promocao %}
+                                <div>
+                                    <span class="preco-antigo">R$ {{ produto.preco }}</span>
+                                    <div class="preco preco-promocional">R$ {{ produto.preco_promocional }}</div>
+                                </div>
+                            {% else %}
+                                <div class="preco">R$ {{ produto.preco }}</div>
+                            {% endif %}
+                            
+                            {% if produto.estoque < 10 %}
+                                <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
+                            {% else %}
+                                <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
+                            {% endif %}
+                            
+                            <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
+                                Ver Detalhes
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginação -->
+                {% if page_obj.paginator.num_pages > 1 %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
+                            Primeira
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
+                            Anterior
+                        </a>
+                    {% endif %}
+
+                    <span class="current">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
+                            Próxima
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}">
+                            Última
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-cart">
+                    <h2>Nenhum produto encontrado</h2>
+                    <p>Tente ajustar seus filtros ou faça uma nova busca.</p>
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary">Ver Todos os Produtos</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

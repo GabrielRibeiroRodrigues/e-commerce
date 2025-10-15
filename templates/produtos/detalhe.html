@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ produto.nome }} - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem;">
+    <!-- Breadcrumb -->
+    <nav style="margin-bottom: 2rem; color: var(--cinza-escuro);">
+        <a href="{% url 'core:home' %}" style="color: var(--verde-principal);">Home</a> / 
+        <a href="{% url 'produtos:lista' %}" style="color: var(--verde-principal);">Produtos</a> / 
+        <a href="?categoria={{ produto.categoria.slug }}" style="color: var(--verde-principal);">{{ produto.categoria.nome }}</a> / 
+        <span>{{ produto.nome }}</span>
+    </nav>
+
+    <!-- Detalhes do Produto -->
+    <div class="produto-detalhe">
+        <!-- Imagem -->
+        <div>
+            {% if produto.imagem %}
+                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+            {% else %}
+                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}">
+            {% endif %}
+        </div>
+
+        <!-- Informações -->
+        <div>
+            <h1 style="color: var(--verde-principal); margin-bottom: 1rem;">
+                {{ produto.nome }}
+            </h1>
+
+            <div style="margin-bottom: 1rem;">
+                <span style="background-color: var(--cinza-medio); padding: 0.5rem 1rem; border-radius: 5px; display: inline-block;">
+                    📁 {{ produto.categoria.nome }}
+                </span>
+                {% if produto.destaque %}
+                    <span class="badge-destaque">DESTAQUE</span>
+                {% endif %}
+                {% if produto.tem_promocao %}
+                    <span class="badge-promocao">PROMOÇÃO</span>
+                {% endif %}
+            </div>
+
+            <div style="background-color: var(--branco); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <p style="font-size: 1.1rem; line-height: 1.8; color: var(--cinza-escuro);">
+                    {{ produto.descricao }}
+                </p>
+            </div>
+
+            <!-- Preço -->
+            <div style="background-color: var(--cinza-claro); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                {% if produto.tem_promocao %}
+                    <div style="margin-bottom: 0.5rem;">
+                        <span class="preco-antigo" style="font-size: 1.2rem;">De: R$ {{ produto.preco }}</span>
+                    </div>
+                    <div class="preco preco-promocional" style="font-size: 2rem;">
+                        Por: R$ {{ produto.preco_promocional }}
+                    </div>
+                    <p style="color: var(--verde-principal); font-weight: bold; margin-top: 0.5rem;">
+                        Economize: R$ {{ produto.preco|floatformat:2|add:produto.preco_promocional|floatformat:2 }}
+                    </p>
+                {% else %}
+                    <div class="preco" style="font-size: 2rem;">
+                        R$ {{ produto.preco }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Estoque -->
+            <div style="margin-bottom: 1.5rem;">
+                {% if produto.estoque > 0 %}
+                    {% if produto.estoque < 10 %}
+                        <p class="estoque-info estoque-baixo" style="font-size: 1.1rem;">
+                            ⚠️ Apenas {{ produto.estoque }} unidades disponíveis!
+                        </p>
+                    {% else %}
+                        <p class="estoque-info" style="font-size: 1.1rem;">
+                            ✅ Em estoque: {{ produto.estoque }} unidades
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p class="estoque-info estoque-baixo" style="font-size: 1.1rem;">
+                        ❌ Produto indisponível
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Botão Adicionar ao Carrinho -->
+            {% if produto.estoque > 0 %}
+                <form action="{% url 'pedidos:adicionar_carrinho' produto.id %}" method="post" style="margin-bottom: 1rem;">
+                    {% csrf_token %}
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                        <label for="quantidade" style="font-weight: bold;">Quantidade:</label>
+                        <input 
+                            type="number" 
+                            name="quantidade" 
+                            id="quantidade" 
+                            value="1" 
+                            min="1" 
+                            max="{{ produto.estoque }}"
+                            style="width: 100px; padding: 0.5rem; border: 1px solid var(--cinza-medio); border-radius: 5px;"
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" style="font-size: 1.2rem; padding: 1rem;">
+                        🛒 Adicionar ao Carrinho
+                    </button>
+                </form>
+            {% else %}
+                <button class="btn btn-secondary btn-block" disabled style="font-size: 1.2rem; padding: 1rem;">
+                    Produto Indisponível
+                </button>
+            {% endif %}
+
+            <a href="{% url 'produtos:lista' %}" class="btn btn-secondary btn-block" style="margin-top: 0.5rem;">
+                ← Voltar para Produtos
+            </a>
+        </div>
+    </div>
+
+    <!-- Produtos Relacionados -->
+    {% if produtos_relacionados %}
+    <section style="margin-top: 4rem; margin-bottom: 3rem;">
+        <h2 style="color: var(--verde-principal); margin-bottom: 1.5rem; text-align: center;">
+            Produtos Relacionados
+        </h2>
+        <div class="produtos-grid">
+            {% for prod in produtos_relacionados %}
+            <div class="card">
+                {% if prod.imagem %}
+                    <img src="{{ prod.imagem.url }}" alt="{{ prod.nome }}" class="card-img">
+                {% else %}
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ prod.nome }}" class="card-img">
+                {% endif %}
+                <div class="card-body">
+                    {% if prod.tem_promocao %}
+                        <span class="badge-promocao">PROMOÇÃO</span>
+                    {% endif %}
+                    <h3 class="card-title">{{ prod.nome }}</h3>
+                    <p class="card-text">{{ prod.descricao|truncatewords:10 }}</p>
+                    
+                    {% if prod.tem_promocao %}
+                        <div>
+                            <span class="preco-antigo">R$ {{ prod.preco }}</span>
+                            <div class="preco preco-promocional">R$ {{ prod.preco_promocional }}</div>
+                        </div>
+                    {% else %}
+                        <div class="preco">R$ {{ prod.preco }}</div>
+                    {% endif %}
+                    
+                    <a href="{% url 'produtos:detalhe' prod.slug %}" class="btn btn-primary btn-block">
+                        Ver Detalhes
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

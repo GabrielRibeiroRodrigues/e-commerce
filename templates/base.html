@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farmácia QUEOPS{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <a href="{% url 'core:home' %}" class="logo">
+                🏥 QUEOPS
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'core:home' %}">Home</a></li>
+                    <li><a href="{% url 'produtos:lista' %}">Produtos</a></li>
+                    {% if user.is_authenticated %}
+                        <li><a href="{% url 'usuarios:perfil' %}">Meu Perfil</a></li>
+                        <li><a href="{% url 'usuarios:logout' %}">Sair</a></li>
+                    {% else %}
+                        <li><a href="{% url 'usuarios:login' %}">Login</a></li>
+                        <li><a href="{% url 'usuarios:registro' %}">Cadastrar</a></li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'pedidos:carrinho' %}" class="btn-carrinho">
+                            🛒 Carrinho
+                            {% if carrinho_count > 0 %}
+                                <span class="badge">{{ carrinho_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mensagens -->
+    {% if messages %}
+        <div class="container">
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <!-- Conteúdo Principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Farmácia QUEOPS - Todos os direitos reservados</p>
+            <p>Desenvolvido com ❤️ para sua saúde e bem-estar</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
