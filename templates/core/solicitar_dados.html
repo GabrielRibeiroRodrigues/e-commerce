@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Solicitar Dados - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--brand-050) 0%, var(--surface-muted) 100%); padding: 2rem 1rem;">
+    <div class="container" style="max-width: 600px;">
+        <div style="background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); padding: 2.5rem 2rem; text-align: center;">
+                <div style="background: white; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-600)" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">
+                    Solicitar Dados
+                </h1>
+                <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0; font-size: 0.95rem;">
+                    Exercite seus direitos conforme a LGPD
+                </p>
+            </div>
+
+            <!-- Form -->
+            <div style="padding: 2rem;">
+                <div style="background: rgba(30, 128, 80, 0.1); border-left: 3px solid var(--brand-500); padding: 1rem; border-radius: 6px; margin-bottom: 2rem;">
+                    <p style="color: var(--neutral-700); font-size: 0.9rem; margin: 0; line-height: 1.5;">
+                        <strong>Seus direitos:</strong> De acordo com a LGPD, você tem direito de acessar, corrigir, excluir ou exportar seus dados pessoais. Responderemos em até 15 dias.
+                    </p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="id_tipo" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--neutral-700); font-size: 0.9rem;">
+                            Tipo de Solicitação *
+                        </label>
+                        <select 
+                            name="tipo" 
+                            id="id_tipo" 
+                            required
+                            style="width: 100%; padding: 0.85rem; border: 2px solid var(--neutral-200); border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; outline: none;"
+                            onfocus="this.style.borderColor='var(--brand-500)'; this.style.boxShadow='0 0 0 3px rgba(30, 128, 80, 0.1)';"
+                            onblur="this.style.borderColor='var(--neutral-200)'; this.style.boxShadow='none';"
+                        >
+                            <option value="">Selecione uma opção...</option>
+                            {% for value, label in tipos_solicitacao %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="id_descricao" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--neutral-700); font-size: 0.9rem;">
+                            Descrição (opcional)
+                        </label>
+                        <textarea 
+                            name="descricao" 
+                            id="id_descricao"
+                            rows="4"
+                            style="width: 100%; padding: 0.85rem; border: 2px solid var(--neutral-200); border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; outline: none; resize: vertical; font-family: inherit;"
+                            onfocus="this.style.borderColor='var(--brand-500)'; this.style.boxShadow='0 0 0 3px rgba(30, 128, 80, 0.1)';"
+                            onblur="this.style.borderColor='var(--neutral-200)'; this.style.boxShadow='none';"
+                            placeholder="Descreva sua solicitação em detalhes..."
+                        ></textarea>
+                    </div>
+
+                    <!-- Informações sobre cada tipo -->
+                    <div style="background: var(--surface-muted); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--neutral-800);">Tipos de Solicitação:</h3>
+                        <ul style="margin: 0; padding-left: 1.25rem; color: var(--neutral-700); font-size: 0.85rem; line-height: 1.8;">
+                            <li><strong>Acesso aos Dados:</strong> Visualizar todos os seus dados armazenados</li>
+                            <li><strong>Correção:</strong> Corrigir dados incorretos ou desatualizados</li>
+                            <li><strong>Anonimização:</strong> Tornar seus dados anônimos</li>
+                            <li><strong>Exclusão:</strong> Excluir permanentemente seus dados</li>
+                            <li><strong>Portabilidade:</strong> Obter uma cópia dos seus dados</li>
+                            <li><strong>Informações:</strong> Saber como seus dados são tratados</li>
+                            <li><strong>Revogação:</strong> Revogar consentimentos anteriores</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" style="width: 100%; background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); color: white; border: none; padding: 1rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(30, 128, 80, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 128, 80, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 128, 80, 0.3)';">
+                        Enviar Solicitação
+                    </button>
+                </form>
+
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--neutral-100); text-align: center;">
+                    <p style="color: var(--neutral-600); font-size: 0.95rem; margin: 0;">
+                        <a href="{% url 'core:meus_dados_lgpd' %}" style="color: var(--brand-600); font-weight: 600; text-decoration: none;">
+                            ← Voltar para Meus Dados
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

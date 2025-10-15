@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meus Dados e Privacidade - Farmácia QUEOPS{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 3rem;">
+    <h1 style="color: var(--brand-600); margin-bottom: 0.5rem;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        Meus Dados e Privacidade
+    </h1>
+    <p style="color: var(--neutral-600); margin-bottom: 2rem;">
+        Gerencie seus dados pessoais e consentimentos de acordo com a LGPD
+    </p>
+
+    <!-- Cards de Ações Rápidas -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+        <a href="{% url 'core:solicitar_dados' %}" style="text-decoration: none; color: inherit;">
+            <div style="background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(30, 128, 80, 0.3); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem;">Solicitar Dados</h3>
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Acesse, corrija ou exclua seus dados</p>
+            </div>
+        </a>
+
+        <a href="{% url 'core:exportar_meus_dados' %}" style="text-decoration: none; color: inherit;">
+            <div style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem;">Exportar Dados</h3>
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Baixe todos os seus dados em JSON</p>
+            </div>
+        </a>
+
+        <a href="{% url 'core:politica_privacidade' %}" style="text-decoration: none; color: inherit;">
+            <div style="background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(102, 16, 242, 0.3); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <h3 style="margin: 0 0 0.5rem; font-size: 1.1rem;">Política de Privacidade</h3>
+                <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Leia nossa política completa</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Meus Consentimentos -->
+    <section style="margin-bottom: 3rem;">
+        <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Meus Consentimentos
+        </h2>
+        
+        {% if consentimentos %}
+        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            {% for consentimento in consentimentos %}
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--neutral-100); {% if forloop.last %}border-bottom: none;{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 0.5rem; color: var(--neutral-800); font-size: 1.05rem;">
+                            {{ consentimento.get_tipo_display }}
+                        </h3>
+                        <p style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">
+                            Data: {{ consentimento.data_consentimento|date:"d/m/Y H:i" }}
+                        </p>
+                        <p style="margin: 0; color: var(--neutral-600); font-size: 0.85rem;">
+                            Versão: {{ consentimento.versao_termos }}
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        {% if consentimento.consentido %}
+                            <span style="background: #28a745; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                ✓ Consentido
+                            </span>
+                            <form method="post" action="{% url 'core:revogar_consentimento' consentimento.id %}" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Tem certeza que deseja revogar este consentimento?')" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background 0.3s;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
+                                    Revogar
+                                </button>
+                            </form>
+                        {% else %}
+                            <span style="background: #6c757d; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                ✗ Revogado
+                            </span>
+                            {% if consentimento.data_revogacao %}
+                            <span style="color: var(--neutral-600); font-size: 0.85rem;">
+                                em {{ consentimento.data_revogacao|date:"d/m/Y" }}
+                            </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="background: var(--surface-muted); padding: 2rem; border-radius: 12px; text-align: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-400)" stroke-width="2" style="margin-bottom: 1rem;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p style="color: var(--neutral-600); margin: 0;">Nenhum consentimento registrado ainda.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Minhas Solicitações -->
+    <section>
+        <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; display: flex; align-items: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Minhas Solicitações
+        </h2>
+        
+        {% if solicitacoes %}
+        <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+            {% for solicitacao in solicitacoes %}
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--neutral-100); {% if forloop.last %}border-bottom: none;{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 0.5rem; color: var(--neutral-800); font-size: 1.05rem;">
+                            {{ solicitacao.get_tipo_display }}
+                        </h3>
+                        <p style="margin: 0 0 0.5rem; color: var(--neutral-600); font-size: 0.9rem;">
+                            Solicitado em: {{ solicitacao.data_solicitacao|date:"d/m/Y H:i" }}
+                        </p>
+                        {% if solicitacao.descricao %}
+                        <p style="margin: 0; color: var(--neutral-600); font-size: 0.9rem; font-style: italic;">
+                            "{{ solicitacao.descricao|truncatewords:20 }}"
+                        </p>
+                        {% endif %}
+                        {% if solicitacao.resposta %}
+                        <div style="background: var(--brand-050); padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem;">
+                            <p style="margin: 0; color: var(--neutral-700); font-size: 0.9rem;">
+                                <strong>Resposta:</strong> {{ solicitacao.resposta }}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if solicitacao.status == 'pendente' %}
+                            <span style="background: #ffc107; color: #000; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                Pendente
+                            </span>
+                        {% elif solicitacao.status == 'em_analise' %}
+                            <span style="background: #17a2b8; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                Em Análise
+                            </span>
+                        {% elif solicitacao.status == 'processando' %}
+                            <span style="background: #007bff; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                Processando
+                            </span>
+                        {% elif solicitacao.status == 'concluida' %}
+                            <span style="background: #28a745; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                ✓ Concluída
+                            </span>
+                        {% elif solicitacao.status == 'rejeitada' %}
+                            <span style="background: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                ✗ Rejeitada
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="background: var(--surface-muted); padding: 2rem; border-radius: 12px; text-align: center;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--neutral-400)" stroke-width="2" style="margin-bottom: 1rem;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p style="color: var(--neutral-600); margin: 0 0 1rem;">Você ainda não fez nenhuma solicitação.</p>
+            <a href="{% url 'core:solicitar_dados' %}" class="btn btn-primary">
+                Fazer Primeira Solicitação
+            </a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
