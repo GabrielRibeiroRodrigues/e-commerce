@@ -18,9 +18,9 @@
         <!-- Imagem -->
         <div>
             {% if produto.imagem %}
-                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}">
+                <img src="{{ produto.imagem_detalhe.url }}" alt="{{ produto.nome }}" loading="eager">
             {% else %}
-                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}">
+                <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" loading="eager">
             {% endif %}
         </div>
 
@@ -153,9 +153,9 @@
             {% for prod in produtos_relacionados %}
             <div class="card">
                 {% if prod.imagem %}
-                    <img src="{{ prod.imagem.url }}" alt="{{ prod.nome }}" class="card-img">
+                    <img src="{{ prod.thumbnail.url }}" alt="{{ prod.nome }}" class="card-img" loading="lazy">
                 {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ prod.nome }}" class="card-img">
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ prod.nome }}" class="card-img" loading="lazy">
                 {% endif %}
                 <div class="card-body">
                     {% if prod.tem_promocao %}

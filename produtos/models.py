@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill, ResizeToFit
 
 
 class Categoria(models.Model):
@@ -46,6 +48,29 @@ class Produto(models.Model):
         null=True, 
         blank=True
     )
+    
+    # Thumbnails otimizados gerados automaticamente
+    thumbnail = ImageSpecField(
+        source='imagem',
+        processors=[ResizeToFill(300, 300)],
+        format='JPEG',
+        options={'quality': 85}
+    )
+    
+    thumbnail_lista = ImageSpecField(
+        source='imagem',
+        processors=[ResizeToFill(260, 220)],
+        format='JPEG',
+        options={'quality': 80}
+    )
+    
+    imagem_detalhe = ImageSpecField(
+        source='imagem',
+        processors=[ResizeToFit(800, 800)],
+        format='JPEG',
+        options={'quality': 90}
+    )
+    
     estoque = models.PositiveIntegerField(default=0)
     ativo = models.BooleanField(default=True)
     destaque = models.BooleanField(

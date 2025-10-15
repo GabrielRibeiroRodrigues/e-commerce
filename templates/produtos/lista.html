@@ -81,9 +81,9 @@
                     {% for produto in page_obj %}
                     <div class="card">
                         {% if produto.imagem %}
-                            <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                            <img src="{{ produto.thumbnail_lista.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                         {% else %}
-                            <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                            <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                         {% endif %}
                         <div class="card-body">
                             {% if produto.tem_promocao %}

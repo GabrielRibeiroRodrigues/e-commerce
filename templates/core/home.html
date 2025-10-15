@@ -37,9 +37,9 @@
             {% for produto in produtos_promocao %}
             <div class="card">
                 {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                    <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                 {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                 {% endif %}
                 <div class="card-body">
                     <span class="badge-promocao">EM PROMOÇÃO</span>
@@ -73,9 +73,9 @@
             {% for produto in produtos_destaque %}
             <div class="card">
                 {% if produto.imagem %}
-                    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="card-img">
+                    <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                 {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img">
+                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
                 {% endif %}
                 <div class="card-body">
                     <span class="badge-destaque">DESTAQUE</span>
