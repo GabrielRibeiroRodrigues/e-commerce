@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 def lista_produtos(request):
     """View para listagem de produtos com filtros e busca."""
     produtos = Produto.objects.filter(ativo=True).select_related('categoria')
+    
+    # Buscar todas as categorias
     categorias = Categoria.objects.all().order_by('nome')
     
     # Filtro por categoria
