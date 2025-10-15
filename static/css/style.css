@@ -1674,3 +1674,115 @@ footer .footer-brand {
         font-size: 1rem;
     }
 }
+
+/* ============================================
+   Social Media Links
+   ============================================ */
+.footer-social {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.social-link svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.social-link span {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.social-instagram:hover {
+    box-shadow: 0 4px 12px rgba(249, 35, 117, 0.3);
+}
+
+.social-facebook:hover {
+    box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+}
+
+/* ============================================
+   WhatsApp Floating Button
+   ============================================ */
+.whatsapp-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    z-index: 999;
+    transition: all 0.3s ease;
+    animation: whatsapp-pulse 2s infinite;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+    animation: none;
+}
+
+.whatsapp-float svg {
+    width: 32px;
+    height: 32px;
+}
+
+@keyframes whatsapp-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4), 
+                    0 0 0 8px rgba(37, 211, 102, 0.2);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 56px;
+        height: 56px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .whatsapp-float svg {
+        width: 28px;
+        height: 28px;
+    }
+
+    .social-links {
+        justify-content: flex-start;
+    }
+}
