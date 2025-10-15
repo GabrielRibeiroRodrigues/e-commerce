@@ -1,108 +1,256 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Home - Farmácia QUEOPS{% endblock %}
+{% block title %}Home - Farmácia QUEOPS | Saúde e Bem-Estar{% endblock %}
 
 {% block content %}
-<section class="page-hero">
+<!-- Hero Section -->
+<section class="hero-modern">
     <div class="container">
-        <h1 class="hero-heading">Bem-vindo à Farmácia QUEOPS</h1>
-        <p class="hero-subtitle">
-            Cuidamos de cada detalhe para que sua experiência de compra seja segura, ágil e orientada à saúde.
-        </p>
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="hero-badge">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 1l2.5 5 5.5.5-4 4 1 5.5L8 13.5 3 16l1-5.5-4-4 5.5-.5L8 1z" fill="currentColor"/>
+                    </svg>
+                    Farmácia de Confiança
+                </span>
+                <h1 class="hero-title">
+                    Sua saúde em <span class="text-highlight">boas mãos</span>
+                </h1>
+                <p class="hero-description">
+                    Produtos farmacêuticos de qualidade com entrega rápida e segura. 
+                    Atendimento profissional para cuidar de você e sua família.
+                </p>
+                <div class="hero-actions">
+                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary btn-lg">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 16a2 2 0 100-4 2 2 0 000 4zM14 16a2 2 0 100-4 2 2 0 000 4zM1 1h2l3.6 7.6M18 11H6L3 3H1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Ver Produtos
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'usuarios:registro' %}" class="btn btn-secondary btn-lg">
+                            Criar Conta
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Features -->
+                <div class="hero-features">
+                    <div class="hero-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 8l-8-6-8 6v8a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 18V10h6v8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <span>Entrega Rápida</span>
+                    </div>
+                    <div class="hero-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Produtos Certificados</span>
+                    </div>
+                    <div class="hero-feature">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 10a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M10 6v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span>Atendimento 24/7</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="hero-image-wrapper">
+                    <svg class="hero-decoration" width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="200" cy="200" r="180" stroke="var(--brand-050)" stroke-width="2" stroke-dasharray="10 10"/>
+                        <circle cx="200" cy="200" r="140" fill="var(--brand-050)"/>
+                        <path d="M200 100l-30 60h-40l30 60-50 80h60l30-60h40l-30-60 50-80h-60z" fill="var(--brand-600)"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<div class="container">
-    <!-- Barra de Busca -->
-    <div class="search-bar">
-        <form action="{% url 'produtos:lista' %}" method="get" class="search-form">
+<!-- Search Section -->
+<section class="search-section">
+    <div class="container">
+        <form action="{% url 'produtos:lista' %}" method="get" class="search-box">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 17A8 8 0 119 1a8 8 0 010 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
             <input 
                 type="text" 
                 name="q" 
-                placeholder="Buscar produtos..." 
-                class="form-control"
+                placeholder="Busque por medicamentos, produtos de higiene, beleza e mais..." 
+                class="search-input"
                 value="{{ request.GET.q }}"
+                aria-label="Buscar produtos"
             >
             <button type="submit" class="btn btn-primary">Buscar</button>
         </form>
     </div>
+</section>
 
-    {% if produtos_promocao %}
-    <!-- Produtos em Promoção -->
-    <section style="margin-bottom: 3rem;">
-        <h2 class="section-title">Ofertas em destaque</h2>
-        <p class="section-subtitle">Seleção especial com preços exclusivos por tempo limitado.</p>
-        <div class="produtos-grid">
+{% if produtos_promocao %}
+<!-- Ofertas em Destaque -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-header-content">
+                <span class="section-badge">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 1l1.5 4.5H14l-3.5 2.5 1.5 4.5L8 10 4.5 12.5l1.5-4.5L2.5 5.5h4.5L8 1z" fill="currentColor"/>
+                    </svg>
+                    Promoções
+                </span>
+                <h2 class="section-title-modern">Ofertas em Destaque</h2>
+                <p class="section-description">
+                    Seleção especial com preços exclusivos por tempo limitado.
+                </p>
+            </div>
+            <a href="{% url 'produtos:lista' %}?promocao=true" class="btn btn-outline">Ver Todas as Ofertas</a>
+        </div>
+
+        <div class="products-grid-modern">
             {% for produto in produtos_promocao %}
-            <div class="card">
-                {% if produto.imagem %}
-                    <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                {% endif %}
-                <div class="card-body">
-                    <span class="badge-promocao">EM PROMOÇÃO</span>
-                    <h3 class="card-title">{{ produto.nome }}</h3>
-                    <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
-                    <div>
-                        <span class="preco-antigo">R$ {{ produto.preco }}</span>
-                        <div class="preco preco-promocional">R$ {{ produto.preco_promocional }}</div>
+            <article class="product-card">
+                <div class="product-card-header">
+                    {% if produto.imagem %}
+                        <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
+                    {% endif %}
+                    <span class="product-badge product-badge-promo">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 1l1.5 4h4l-3 2.5 1.5 4.5L7 9.5l-4 2.5 1.5-4.5-3-2.5h4L7 1z" fill="currentColor"/>
+                        </svg>
+                        Promoção
+                    </span>
+                </div>
+                
+                <div class="product-card-body">
+                    <h3 class="product-title">{{ produto.nome }}</h3>
+                    <p class="product-description">{{ produto.descricao|truncatewords:12 }}</p>
+                    
+                    <div class="product-pricing">
+                        <span class="price-old">R$ {{ produto.preco }}</span>
+                        <span class="price-current price-promo">R$ {{ produto.preco_promocional }}</span>
                     </div>
-                    {% if produto.estoque < 10 %}
-                        <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
-                    {% else %}
-                        <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
-                    {% endif %}
+                    
+                    <div class="product-stock">
+                        {% if produto.estoque < 10 %}
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 5v3M8 11h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="stock-low">Apenas {{ produto.estoque }} unidades</span>
+                        {% else %}
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 8A6 6 0 112 8a6 6 0 0112 0zM6 8l1.5 1.5L11 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="stock-available">Em estoque</span>
+                        {% endif %}
+                    </div>
+                    
                     <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
                         Ver Detalhes
                     </a>
                 </div>
-            </div>
+            </article>
             {% endfor %}
         </div>
-    </section>
-    {% endif %}
-
-    {% if produtos_destaque %}
-    <!-- Produtos em Destaque -->
-    <section style="margin-bottom: 3rem;">
-        <h2 class="section-title">Produtos recomendados</h2>
-        <p class="section-subtitle">Itens selecionados pela nossa equipe farmacêutica.</p>
-        <div class="produtos-grid">
-            {% for produto in produtos_destaque %}
-            <div class="card">
-                {% if produto.imagem %}
-                    <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="card-img" loading="lazy">
-                {% endif %}
-                <div class="card-body">
-                    <span class="badge-destaque">DESTAQUE</span>
-                    <h3 class="card-title">{{ produto.nome }}</h3>
-                    <p class="card-text">{{ produto.descricao|truncatewords:15 }}</p>
-                    <div class="preco">R$ {{ produto.preco_final }}</div>
-                    {% if produto.estoque < 10 %}
-                        <p class="estoque-info estoque-baixo">Apenas {{ produto.estoque }} unidades!</p>
-                    {% else %}
-                        <p class="estoque-info">Em estoque: {{ produto.estoque }}</p>
-                    {% endif %}
-                    <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
-                        Ver Detalhes
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- Call to Action -->
-    <div style="text-align: center; padding: 3rem 0;">
-        <h2 class="section-title" style="margin-bottom: 1rem;">Explore todo o portfólio QUEOPS</h2>
-        <a href="{% url 'produtos:lista' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
-            Ver Catálogo Completo
-        </a>
     </div>
-</div>
+</section>
+{% endif %}
+
+{% if produtos_destaque %}
+<!-- Produtos Recomendados -->
+<section class="products-section products-section-highlight">
+    <div class="container">
+        <div class="section-header">
+            <div class="section-header-content">
+                <span class="section-badge section-badge-secondary">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 1l2 4 4.5.5-3 3 1 4.5L8 11l-4.5 2 1-4.5-3-3L6 5l2-4z" fill="currentColor"/>
+                    </svg>
+                    Recomendados
+                </span>
+                <h2 class="section-title-modern">Produtos Recomendados</h2>
+                <p class="section-description">
+                    Itens selecionados pela nossa equipe farmacêutica.
+                </p>
+            </div>
+            <a href="{% url 'produtos:lista' %}" class="btn btn-outline">Ver Todos os Produtos</a>
+        </div>
+
+        <div class="products-grid-modern">
+            {% for produto in produtos_destaque %}
+            <article class="product-card">
+                <div class="product-card-header">
+                    {% if produto.imagem %}
+                        <img src="{{ produto.thumbnail.url }}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ produto.nome }}" class="product-image" loading="lazy">
+                    {% endif %}
+                    <span class="product-badge product-badge-featured">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 1l1.5 3.5L12 5l-3 2.5 1 4.5L7 10l-3 2-1-4.5L0 5l3.5-.5L7 1z" fill="currentColor"/>
+                        </svg>
+                        Destaque
+                    </span>
+                </div>
+                
+                <div class="product-card-body">
+                    <h3 class="product-title">{{ produto.nome }}</h3>
+                    <p class="product-description">{{ produto.descricao|truncatewords:12 }}</p>
+                    
+                    <div class="product-pricing">
+                        <span class="price-current">R$ {{ produto.preco_final }}</span>
+                    </div>
+                    
+                    <div class="product-stock">
+                        {% if produto.estoque < 10 %}
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 5v3M8 11h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="stock-low">Apenas {{ produto.estoque }} unidades</span>
+                        {% else %}
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 8A6 6 0 112 8a6 6 0 0112 0zM6 8l1.5 1.5L11 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="stock-available">Em estoque</span>
+                        {% endif %}
+                    </div>
+                    
+                    <a href="{% url 'produtos:detalhe' produto.slug %}" class="btn btn-primary btn-block">
+                        Ver Detalhes
+                    </a>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action Final -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Explore Todo o Catálogo QUEOPS</h2>
+            <p class="cta-description">
+                Descubra nossa linha completa de produtos farmacêuticos, suplementos e itens de cuidados pessoais.
+            </p>
+            <a href="{% url 'produtos:lista' %}" class="btn btn-primary btn-lg">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5m4-5a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Ver Catálogo Completo
+            </a>
+        </div>
+    </div>
+</section>
 {% endblock %}
