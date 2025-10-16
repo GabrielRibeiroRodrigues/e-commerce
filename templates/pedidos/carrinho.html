@@ -4,289 +4,149 @@
 {% block title %}Carrinho de Compras - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="bg-gradient-to-r from-brand-50 to-blue-50 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center" data-aos="fade-down">
-            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm mb-4">
-                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-                <span class="text-sm font-semibold text-brand-700">Seu Carrinho</span>
+<!-- Hero -->
+<section class="bg-gradient-to-r from-brand-50 via-white to-blue-50 py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-3xl md:text-4xl font-display font-extrabold text-gray-900">Meu Carrinho</h1>
+    <p class="text-gray-600 mt-2">Revise seus produtos antes de finalizar a compra</p>
+  </div>
+  </section>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ removingId: null }">
+  {% if itens_carrinho %}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-aos="fade-up">
+    <!-- Lista de Itens -->
+    <div class="lg:col-span-2 space-y-4">
+      {% for item in itens_carrinho %}
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:50 }}">
+        <div class="grid grid-cols-[100px_1fr_auto] sm:grid-cols-[120px_1fr_auto] gap-4 sm:gap-6 items-center">
+          <!-- Imagem -->
+          <div>
+            {% if item.produto.imagem %}
+            <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" class="w-full h-24 sm:h-28 object-cover rounded-lg" loading="lazy">
+            {% else %}
+            <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ item.produto.nome }}" class="w-full h-24 sm:h-28 object-cover rounded-lg" loading="lazy">
+            {% endif %}
+          </div>
+
+          <!-- Informações do Produto -->
+          <div>
+            <a href="{% url 'produtos:detalhe' item.produto.slug %}" class="block text-base sm:text-lg font-semibold text-gray-900 hover:text-brand-700 transition-colors line-clamp-2">{{ item.produto.nome }}</a>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="px-2.5 py-0.5 bg-brand-100 text-brand-700 rounded-full text-xs font-semibold">{{ item.produto.categoria.nome }}</span>
+              {% if item.produto.estoque < 10 %}
+              <span class="px-2.5 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">Poucas unidades</span>
+              {% endif %}
             </div>
-            <h1 class="text-4xl md:text-5xl font-display font-extrabold text-gray-900 mb-3">
-                Meu Carrinho
-            </h1>
-            <p class="text-lg text-gray-600">
-                Revise seus produtos antes de finalizar a compra
-            </p>
+            <p class="text-lg font-extrabold text-brand-700 mt-2">R$ {{ item.produto.preco_final }} <span class="text-sm font-medium text-gray-500">cada</span></p>
+
+            <!-- Atualizar Quantidade -->
+            <form action="{% url 'pedidos:atualizar_carrinho' item.produto.id %}" method="post" class="mt-3 inline-flex items-center gap-3" x-data="{ q: {{ item.quantidade }} }">
+              {% csrf_token %}
+              <span class="text-sm text-gray-600">Quantidade:</span>
+              <div class="flex items-center rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <button type="button" class="px-3 py-2 text-gray-600 hover:bg-gray-100" @click="q = Math.max(1, q-1); $refs.input.value=q; $el.closest('form').submit()">-</button>
+                <input x-ref="input" type="number" name="quantidade" :value="q" min="1" max="{{ item.produto.estoque }}" class="w-14 text-center py-2 focus:outline-none" />
+                <button type="button" class="px-3 py-2 text-gray-600 hover:bg-gray-100" @click="q = Math.min({{ item.produto.estoque }}, q+1); $refs.input.value=q; $el.closest('form').submit()">+</button>
+              </div>
+              <noscript>
+                <button type="submit" class="px-3 py-2 bg-brand-600 text-white rounded-lg">Atualizar</button>
+              </noscript>
+            </form>
+          </div>
+
+          <!-- Subtotal e Remover -->
+          <div class="text-right space-y-3">
+            <p class="text-xl font-extrabold text-brand-700">R$ {{ item.subtotal }}</p>
+            <form id="remover-{{ item.produto.id }}" action="{% url 'pedidos:remover_carrinho' item.produto.id %}" method="post">
+              {% csrf_token %}
+              <button type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition" @click="removingId='{{ item.produto.id }}'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                Remover
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
+      {% endfor %}
+
+      <a href="{% url 'produtos:lista' %}" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-gray-200 text-gray-700 hover:border-brand-300 hover:text-brand-700 transition">
+        ← Continuar Comprando
+      </a>
     </div>
-</section>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    {% if itens_carrinho %}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Lista de Itens -->
-            <div class="lg:col-span-2 space-y-4" x-data="{ removingId: null }">
-                {% for item in itens_carrinho %}
-                <article class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:50 }}">
-                    <div class="p-6">
-                        <div class="flex flex-col sm:flex-row gap-6">
-                            <!-- Imagem -->
-                            <div class="flex-shrink-0">
-                                <div class="relative w-32 h-32 bg-gray-50 rounded-xl overflow-hidden group">
-                                    {% if item.produto.imagem %}
-                                        <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
-                                    {% else %}
-                                        <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ item.produto.nome }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
-                                    {% endif %}
-                                </div>
-                            </div>
+    <!-- Resumo do Pedido -->
+    <aside class="lg:sticky lg:top-28 h-max">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Resumo do Pedido</h2>
 
-                            <!-- Informações do Produto -->
-                            <div class="flex-grow">
-                                <h3 class="text-xl font-bold text-gray-900 mb-2 hover:text-brand-600 transition-colors">
-                                    <a href="{% url 'produtos:detalhe' item.produto.slug %}" class="hover:underline">
-                                        {{ item.produto.nome }}
-                                    </a>
-                                </h3>
-                                
-                                <div class="flex items-center gap-2 mb-3">
-                                    <span class="px-3 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-semibold">
-                                        {{ item.produto.categoria.nome }}
-                                    </span>
-                                    {% if item.produto.estoque < 10 %}
-                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold flex items-center gap-1">
-                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                            </svg>
-                                            Estoque baixo
-                                        </span>
-                                    {% endif %}
-                                </div>
-
-                                <div class="flex items-baseline gap-2 mb-4">
-                                    <span class="text-sm text-gray-500">Preço unitário:</span>
-                                    <span class="text-2xl font-bold text-brand-600">R$ {{ item.produto.preco_final }}</span>
-                                </div>
-
-                                <!-- Controles de Quantidade com Alpine.js -->
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                                    <form method="post" action="{% url 'pedidos:atualizar_carrinho' item.produto.id %}" class="flex items-center gap-3" x-data="{ quantidade: {{ item.quantidade }} }">
-                                        {% csrf_token %}
-                                        <label class="text-sm font-semibold text-gray-700">Quantidade:</label>
-                                        <div class="flex items-center bg-gray-100 rounded-xl overflow-hidden">
-                                            <button type="button" @click="if(quantidade > 1) quantidade--" class="px-4 py-2 hover:bg-gray-200 transition-colors">
-                                                <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                                                </svg>
-                                            </button>
-                                            <input 
-                                                type="number" 
-                                                name="quantidade" 
-                                                x-model="quantidade"
-                                                min="1" 
-                                                max="{{ item.produto.estoque }}"
-                                                class="w-16 text-center bg-transparent border-x border-gray-200 py-2 font-bold text-gray-900 focus:outline-none"
-                                            >
-                                            <button type="button" @click="if(quantidade < {{ item.produto.estoque }}) quantidade++" class="px-4 py-2 hover:bg-gray-200 transition-colors">
-                                                <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <button type="submit" class="px-4 py-2 bg-brand-600 text-white font-semibold rounded-lg hover:bg-brand-700 transition-colors duration-200 text-sm">
-                                            Atualizar
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <!-- Subtotal e Remover -->
-                            <div class="flex flex-col items-end justify-between sm:ml-auto">
-                                <div class="text-right mb-4">
-                                    <div class="text-sm text-gray-500 mb-1">Subtotal</div>
-                                    <div class="text-3xl font-extrabold text-brand-600">R$ {{ item.subtotal }}</div>
-                                </div>
-                                
-                                <button 
-                                    @click="removingId = {{ item.produto.id }}"
-                                    type="button"
-                                    class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors duration-200 text-sm"
-                                >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                    Remover
-                                </button>
-
-                                <!-- Modal de Confirmação com Alpine.js -->
-                                <div 
-                                    x-show="removingId === {{ item.produto.id }}"
-                                    x-cloak
-                                    @click.away="removingId = null"
-                                    class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-                                    style="display: none;"
-                                >
-                                    <div 
-                                        @click.stop
-                                        class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
-                                        x-transition:enter="transition ease-out duration-200"
-                                        x-transition:enter-start="opacity-0 scale-95"
-                                        x-transition:enter-end="opacity-100 scale-100"
-                                    >
-                                        <div class="flex items-center gap-4 mb-4">
-                                            <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                            </div>
-                                            <div>
-                                                <h3 class="text-xl font-bold text-gray-900">Remover produto?</h3>
-                                                <p class="text-gray-600 text-sm mt-1">Esta ação não pode ser desfeita</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <p class="text-gray-700 mb-6">
-                                            Tem certeza que deseja remover <span class="font-semibold">{{ item.produto.nome }}</span> do carrinho?
-                                        </p>
-                                        
-                                        <div class="flex gap-3">
-                                            <button 
-                                                @click="removingId = null"
-                                                type="button"
-                                                class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-colors"
-                                            >
-                                                Cancelar
-                                            </button>
-                                            <form method="post" action="{% url 'pedidos:remover_carrinho' item.produto.id %}" class="flex-1">
-                                                {% csrf_token %}
-                                                <button 
-                                                    type="submit"
-                                                    class="w-full px-4 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors"
-                                                >
-                                                    Sim, Remover
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {% endfor %}
-
-                <a href="{% url 'produtos:lista' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-brand-600 font-bold rounded-xl hover:bg-brand-50 border-2 border-brand-200 hover:border-brand-300 transition-all duration-200 shadow-md hover:shadow-lg">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    Continuar Comprando
-                </a>
-            </div>
-
-            <!-- Resumo do Pedido -->
-            <aside class="lg:col-span-1">
-                <div class="sticky top-24" data-aos="fade-left">
-                    <div class="bg-white rounded-2xl shadow-xl border-2 border-brand-100 overflow-hidden">
-                        <!-- Header -->
-                        <div class="bg-gradient-to-r from-brand-600 to-trust-600 p-6 text-white">
-                            <h2 class="text-2xl font-display font-extrabold flex items-center gap-2">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
-                                Resumo do Pedido
-                            </h2>
-                        </div>
-
-                        <div class="p-6">
-                            <!-- Itens -->
-                            <div class="space-y-3 mb-6">
-                                <div class="flex justify-between text-gray-700">
-                                    <span class="font-medium">Produtos ({{ itens_carrinho|length }})</span>
-                                    <span class="font-semibold">R$ {{ total }}</span>
-                                </div>
-                                <div class="flex justify-between text-gray-700">
-                                    <span class="font-medium">Frete</span>
-                                    {% if valor_frete is not None %}
-                                        {% if valor_frete > 0 %}
-                                            <span class="font-semibold text-brand-600">R$ {{ valor_frete }}</span>
-                                        {% else %}
-                                            <span class="font-semibold text-green-600">GRÁTIS</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-sm text-gray-500">Calcular no checkout</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="border-t-2 border-gray-200 pt-4 mb-6">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-lg font-bold text-gray-900">Total</span>
-                                    <span class="text-3xl font-extrabold text-brand-600">R$ {{ total_geral }}</span>
-                                </div>
-                            </div>
-
-                            <!-- CTA -->
-                            {% if user.is_authenticated %}
-                                <a href="{% url 'pedidos:checkout' %}" class="block w-full px-6 py-4 bg-gradient-to-r from-brand-600 to-trust-600 text-white font-bold text-center rounded-xl hover:from-brand-700 hover:to-trust-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg mb-3">
-                                    Finalizar Compra
-                                    <svg class="w-5 h-5 inline ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                    </svg>
-                                </a>
-                            {% else %}
-                                <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" class="block w-full px-6 py-4 bg-gradient-to-r from-brand-600 to-trust-600 text-white font-bold text-center rounded-xl hover:from-brand-700 hover:to-trust-700 transition-all duration-200 shadow-lg hover:shadow-xl text-lg mb-3">
-                                    Fazer Login para Comprar
-                                </a>
-                                <p class="text-center text-sm text-gray-600">
-                                    Não tem conta? 
-                                    <a href="{% url 'usuarios:registro' %}" class="text-brand-600 font-semibold hover:underline">Cadastre-se grátis</a>
-                                </p>
-                            {% endif %}
-
-                            <!-- Trust Badges -->
-                            <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-gray-200">
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span class="text-xs text-gray-600 font-medium">Compra Segura</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
-                                        <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
-                                    </svg>
-                                    <span class="text-xs text-gray-600 font-medium">Frete Rápido</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </aside>
+        <div class="divide-y divide-gray-100 mb-4">
+          <div class="py-3 flex items-center justify-between">
+            <span class="text-gray-600">Subtotal</span>
+            <span class="font-semibold text-gray-900">R$ {{ total }}</span>
+          </div>
+          <div class="py-3 flex items-center justify-between">
+            <span class="text-gray-600">Frete</span>
+            {% if valor_frete is not None %}
+              {% if valor_frete > 0 %}
+                <span class="font-semibold text-brand-700">R$ {{ valor_frete }}</span>
+              {% else %}
+                <span class="font-semibold text-brand-700">R$ 0,00</span>
+              {% endif %}
+            {% else %}
+              <span class="text-gray-500 text-sm">Calcule no checkout</span>
+            {% endif %}
+          </div>
         </div>
-    {% else %}
-        <!-- Empty State -->
-        <div class="text-center py-16" data-aos="fade-up">
-            <div class="max-w-md mx-auto">
-                <div class="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-3">Seu carrinho está vazio</h2>
-                <p class="text-gray-600 mb-8">Adicione produtos ao seu carrinho para continuar comprando</p>
-                <a href="{% url 'produtos:lista' %}" class="inline-flex items-center gap-2 px-8 py-4 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                    </svg>
-                    Ver Produtos
-                </a>
-            </div>
+
+        <div class="py-2 flex items-center justify-between">
+          <span class="text-lg font-bold text-gray-900">Total</span>
+          <span class="text-2xl font-extrabold text-brand-700">R$ {{ total_geral }}</span>
         </div>
-    {% endif %}
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'pedidos:checkout' %}" class="mt-5 block w-full text-center px-5 py-3 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl transition">Finalizar Compra</a>
+        {% else %}
+        <a href="{% url 'usuarios:login' %}?next={% url 'pedidos:checkout' %}" class="mt-5 block w-full text-center px-5 py-3 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl transition">Fazer Login para Comprar</a>
+        <p class="text-center text-sm text-gray-600 mt-3">ou <a href="{% url 'usuarios:registro' %}" class="text-brand-700 font-semibold">Cadastre-se</a></p>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modal de Remoção -->
+  <div x-cloak x-show="removingId" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" x-transition>
+    <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" @click.away="removingId=null" x-transition>
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.455 5.455A9 9 0 1118.545 18.545 9 9 0 015.455 5.455z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-900">Remover item do carrinho?</h3>
+          <p class="text-gray-600 mt-1">Essa ação não pode ser desfeita.</p>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-3">
+        <button class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50" @click="removingId=null">Cancelar</button>
+        <button class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700" @click="document.getElementById('remover-'+removingId).submit()">Remover</button>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- Estado Vazio -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center" data-aos="fade-up">
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mb-4">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5m4-5a2 2 0 100 4 2 2 0 000-4zm10 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
+    </div>
+    <h2 class="text-2xl font-extrabold text-gray-900">Seu carrinho está vazio</h2>
+    <p class="text-gray-600 mt-1">Adicione produtos ao seu carrinho para continuar comprando.</p>
+    <a href="{% url 'produtos:lista' %}" class="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl transition">
+      Ver Produtos
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+    </a>
+  </div>
+  {% endif %}
 </div>
 
 <style>
