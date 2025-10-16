@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import importlib
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from pathlib import Path
 
 def _load_dotenv_factory():
