@@ -3,109 +3,152 @@
 {% block title %}Meu Perfil - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-hero">
-    <div class="container">
-        <h1 class="hero-heading">Meu Perfil</h1>
-        <p class="hero-subtitle">Bem-vindo, {{ user.username }}!</p>
-    </div>
-</div>
+<section class="bg-gradient-to-b from-brand-50/40 to-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ tab: 'pedidos' }">
+        <!-- Hero -->
+        <div class="mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Meu Perfil</h1>
+            <p class="text-gray-600">Bem-vindo, {{ user.username }}!</p>
+        </div>
 
-<div class="container" style="margin-top: 2rem;">
-    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
-        <!-- Sidebar com informações do usuário -->
-        <aside>
-            <div class="card">
-                <div class="card-body">
-                    <h2 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.3rem;">
-                        Informações da Conta
-                    </h2>
-                    <p><strong>Usuário:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email|default:"Não informado" }}</p>
-                    <p><strong>Nome:</strong> {{ user.get_full_name|default:"Não informado" }}</p>
-                    <p><strong>Membro desde:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
-                    
-                    <hr style="margin: 1.5rem 0;">
-                    
-                    <a href="{% url 'usuarios:logout' %}" class="btn btn-danger btn-block">
-                        Sair da Conta
-                    </a>
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4">
+                <div class="inline-flex rounded-lg bg-gray-100 p-1">
+                    <button @click="tab='dados'" :class="tab==='dados' ? 'bg-white text-gray-900 shadow' : 'text-gray-600'" class="px-4 py-2 rounded-md text-sm font-medium">Dados da conta</button>
+                    <button @click="tab='pedidos'" :class="tab==='pedidos' ? 'bg-white text-gray-900 shadow' : 'text-gray-600'" class="px-4 py-2 rounded-md text-sm font-medium">Pedidos</button>
                 </div>
+                <a href="{% url 'usuarios:logout' %}" class="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-semibold">Sair da Conta</a>
             </div>
-        </aside>
+            <hr class="border-gray-100">
 
-        <!-- Histórico de Pedidos -->
-        <div>
-            <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.6rem;">
-                Histórico de Pedidos
-            </h2>
-
-            {% if pedidos %}
-                {% for pedido in pedidos %}
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--brand-600); font-size: 1.25rem;">
-                                Pedido #{{ pedido.id }}
-                            </h3>
-                            <span style="
-                                padding: 0.5rem 1rem; 
-                                border-radius: 5px; 
-                                font-weight: bold;
-                                {% if pedido.status == 'entregue' %}
-                                    background-color: #28a745; color: white;
-                                {% elif pedido.status == 'cancelado' %}
-                                    background-color: #dc3545; color: white;
-                                {% elif pedido.status == 'enviado' %}
-                                    background-color: #17a2b8; color: white;
-                                {% else %}
-                                    background-color: #ffc107; color: black;
-                                {% endif %}
-                            ">
-                                {{ pedido.get_status_display }}
-                            </span>
+            <!-- Conteúdo: Dados -->
+            <div x-show="tab==='dados'" x-cloak class="p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-14 h-14 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Informações da Conta</h3>
+                                <p class="text-sm text-gray-500">Gerencie seus dados pessoais</p>
+                            </div>
                         </div>
+                        <dl class="divide-y divide-gray-100">
+                            <div class="py-3 flex justify-between">
+                                <dt class="text-sm text-gray-500">Usuário</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ user.username }}</dd>
+                            </div>
+                            <div class="py-3 flex justify-between">
+                                <dt class="text-sm text-gray-500">Email</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ user.email|default:"Não informado" }}</dd>
+                            </div>
+                            <div class="py-3 flex justify-between">
+                                <dt class="text-sm text-gray-500">Nome completo</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:"Não informado" }}</dd>
+                            </div>
+                            <div class="py-3 flex justify-between">
+                                <dt class="text-sm text-gray-500">Membro desde</dt>
+                                <dd class="text-sm font-medium text-gray-900">{{ user.date_joined|date:"d/m/Y" }}</dd>
+                            </div>
+                        </dl>
+                    </div>
 
-                        <p><strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
-                        <p><strong>Subtotal:</strong> R$ {{ pedido.total }}</p>
-                        <p><strong>Frete:</strong> R$ {{ pedido.valor_frete }}</p>
-                        <p><strong>Total Geral:</strong> <span style="color: var(--verde-principal); font-weight: bold;">R$ {{ pedido.total_com_frete }}</span></p>
-                        {% if pedido.pagamento_info %}
-                            <p>
-                                <strong>Pagamento:</strong> {{ pedido.pagamento_info.get_metodo_display }} - {{ pedido.pagamento_info.get_status_display }}
-                                {% if pedido.pagamento_info.cartao_final %}
-                                    (final {{ pedido.pagamento_info.cartao_final }})
-                                {% endif %}
-                            </p>
-                        {% endif %}
-                        <p><strong>Endereço:</strong> {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
-
-                        <hr style="margin: 1rem 0;">
-
-                        <h4 style="margin-bottom: 0.5rem;">Itens do Pedido:</h4>
-                        <ul style="list-style: none; padding: 0;">
-                            {% for item in pedido.itens.all %}
-                                <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--cinza-medio);">
-                                    <strong>{{ item.quantidade }}x</strong> {{ item.produto.nome }} 
-                                    - R$ {{ item.preco_unitario }} cada
-                                    <span style="float: right; font-weight: bold; color: var(--verde-principal);">
-                                        R$ {{ item.subtotal }}
-                                    </span>
-                                </li>
-                            {% endfor %}
+                    <div class="bg-gradient-to-br from-trust-50 to-blue-50 rounded-xl border border-blue-100 p-5 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Dicas de segurança</h3>
+                        <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                            <li>Use uma senha forte e única.</li>
+                            <li>Não compartilhe suas credenciais.</li>
+                            <li>Mantenha seu e-mail atualizado para recuperar acesso.</li>
                         </ul>
+                                    <div class="mt-4">
+                                        <a href="{% url 'usuarios:recuperar_senha' %}" class="inline-flex items-center px-4 py-2 bg-trust-600 hover:bg-trust-700 text-white rounded-lg font-semibold shadow">Alterar senha</a>
+                                    </div>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <div class="empty-cart">
-                    <h3>Você ainda não fez nenhum pedido</h3>
-                    <p>Explore nossos produtos e faça seu primeiro pedido!</p>
-                    <a href="{% url 'produtos:lista' %}" class="btn btn-primary">
-                        Ver Produtos
-                    </a>
-                </div>
-            {% endif %}
+            </div>
+
+            <!-- Conteúdo: Pedidos -->
+            <div x-show="tab==='pedidos'" x-cloak class="p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Histórico de Pedidos</h2>
+                {% if pedidos %}
+                    <div class="space-y-4">
+                        {% for pedido in pedidos %}
+                        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <h3 class="text-lg font-semibold text-brand-700">Pedido #{{ pedido.id }}</h3>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold
+                                    {% if pedido.status == 'entregue' %} bg-green-100 text-green-700 border border-green-200
+                                    {% elif pedido.status == 'cancelado' %} bg-red-100 text-red-700 border border-red-200
+                                    {% elif pedido.status == 'enviado' %} bg-cyan-100 text-cyan-700 border border-cyan-200
+                                    {% else %} bg-amber-100 text-amber-800 border border-amber-200{% endif %}">
+                                    {{ pedido.get_status_display }}
+                                </span>
+                            </div>
+
+                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Data</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Subtotal</p>
+                                    <p class="text-sm font-medium text-gray-900">R$ {{ pedido.total }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Frete</p>
+                                    <p class="text-sm font-medium text-gray-900">R$ {{ pedido.valor_frete }}</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-500">Total Geral</p>
+                                    <p class="text-sm font-bold text-emerald-700">R$ {{ pedido.total_com_frete }}</p>
+                                </div>
+                            </div>
+
+                            {% if pedido.pagamento_info %}
+                            <div class="mt-4 text-sm text-gray-700">
+                                <p>
+                                    <span class="font-medium">Pagamento:</span>
+                                    {{ pedido.pagamento_info.get_metodo_display }} - {{ pedido.pagamento_info.get_status_display }}
+                                    {% if pedido.pagamento_info.cartao_final %}
+                                        (final {{ pedido.pagamento_info.cartao_final }})
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            <p class="mt-2 text-sm text-gray-700"><span class="font-medium">Endereço:</span> {{ pedido.endereco }}, {{ pedido.cidade }}/{{ pedido.estado }}</p>
+
+                            <div class="mt-4">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-2">Itens do Pedido</h4>
+                                <ul class="divide-y divide-gray-100">
+                                    {% for item in pedido.itens.all %}
+                                    <li class="py-2 flex items-center justify-between">
+                                        <div class="text-sm text-gray-700">
+                                            <span class="font-semibold">{{ item.quantidade }}x</span>
+                                            {{ item.produto.nome }} - R$ {{ item.preco_unitario }} cada
+                                        </div>
+                                        <span class="text-sm font-bold text-emerald-700">R$ {{ item.subtotal }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3h18M3 8h18M3 13h18M3 18h18"/></svg>
+                        </div>
+                        <h3 class="mt-4 text-lg font-semibold text-gray-900">Você ainda não fez nenhum pedido</h3>
+                        <p class="text-gray-600">Explore nossos produtos e faça seu primeiro pedido!</p>
+                        <a href="{% url 'produtos:lista' %}" class="mt-6 inline-flex items-center px-5 py-3 bg-trust-600 hover:bg-trust-700 text-white rounded-xl font-bold shadow">Ver Produtos</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}

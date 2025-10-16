@@ -1,271 +1,601 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Checkout - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-hero">
-    <div class="container">
-        <h1 class="hero-heading">Finalizar Compra</h1>
-        <p class="hero-subtitle">Preencha os dados de entrega e pagamento</p>
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-brand-50 to-blue-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center" data-aos="fade-down">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm mb-4">
+                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-sm font-semibold text-brand-700">Checkout Seguro</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-display font-extrabold text-gray-900 mb-3">
+                Finalizar Compra
+            </h1>
+            <p class="text-lg text-gray-600">
+                Complete seu pedido em poucos passos
+            </p>
+        </div>
     </div>
-</div>
+</section>
 
-<div class="container" style="margin-top: 2rem;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
-        <!-- Formulário de Entrega -->
-        <div>
-            <div class="card">
-                <div class="card-body">
-                    <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
-                        Dados de Entrega
-                    </h2>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" x-data="checkoutWizard()">
+    <!-- Progress Indicator -->
+    <div class="mb-12" data-aos="fade-down">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center w-full max-w-3xl">
+                <!-- Step 1 -->
+                <div class="flex items-center flex-1">
+                    <div class="relative">
+                        <div 
+                            class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300"
+                            :class="currentStep >= 1 ? 'bg-brand-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'"
+                        >
+                            <span x-show="currentStep > 1">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span x-show="currentStep <= 1">1</span>
+                        </div>
+                        <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <p class="text-sm font-semibold" :class="currentStep >= 1 ? 'text-brand-600' : 'text-gray-500'">
+                                Entrega
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex-1 h-1 mx-2" :class="currentStep >= 2 ? 'bg-brand-600' : 'bg-gray-200'"></div>
+                </div>
 
-                    <form method="post">
-                        {% csrf_token %}
+                <!-- Step 2 -->
+                <div class="flex items-center flex-1">
+                    <div class="relative">
+                        <div 
+                            class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300"
+                            :class="currentStep >= 2 ? 'bg-brand-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'"
+                        >
+                            <span x-show="currentStep > 2">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </span>
+                            <span x-show="currentStep <= 2">2</span>
+                        </div>
+                        <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <p class="text-sm font-semibold" :class="currentStep >= 2 ? 'text-brand-600' : 'text-gray-500'">
+                                Pagamento
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex-1 h-1 mx-2" :class="currentStep >= 3 ? 'bg-brand-600' : 'bg-gray-200'"></div>
+                </div>
 
-                        <div class="form-group">
-                            <label for="endereco">Endereço Completo *</label>
-                            <input 
-                                type="text" 
-                                name="endereco" 
-                                id="endereco" 
-                                class="form-control" 
-                                placeholder="Rua, número, complemento"
-                                value="{{ form_data.endereco }}"
+                <!-- Step 3 -->
+                <div class="flex items-center">
+                    <div class="relative">
+                        <div 
+                            class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300"
+                            :class="currentStep >= 3 ? 'bg-brand-600 text-white shadow-lg' : 'bg-gray-200 text-gray-500'"
+                        >
+                            3
+                        </div>
+                        <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                            <p class="text-sm font-semibold" :class="currentStep >= 3 ? 'text-brand-600' : 'text-gray-500'">
+                                Revisão
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-16">
+        <!-- Formulário Multi-Step -->
+        <div class="lg:col-span-2">
+            <form method="post" @submit="handleSubmit">
+                {% csrf_token %}
+
+                <!-- Step 1: Dados de Entrega -->
+                <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0">
+                    <div class="bg-white rounded-2xl shadow-xl border-2 border-brand-100 p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-display font-extrabold text-gray-900">Dados de Entrega</h2>
+                                <p class="text-sm text-gray-600">Informe o endereço para receber seu pedido</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <!-- CEP com Auto-Complete -->
+                            <div>
+                                <label for="cep" class="block text-sm font-bold text-gray-700 mb-2">CEP *</label>
+                                <div class="flex gap-3">
+                                    <div class="relative flex-1">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                            </svg>
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            name="cep" 
+                                            id="cep" 
+                                            x-mask="99999-999"
+                                            @blur="buscarCEP($event.target.value)"
+                                            value="{{ form_data.cep }}"
+                                            class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                            placeholder="00000-000"
+                                            required
+                                        >
+                                    </div>
+                                    <button 
+                                        type="submit" 
+                                        name="calcular_frete" 
+                                        value="1"
+                                        class="px-6 py-3 bg-trust-600 text-white font-bold rounded-xl hover:bg-trust-700 transition-colors shadow-md"
+                                    >
+                                        Calcular Frete
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">Digite o CEP para autocompletar o endereço</p>
+                            </div>
+
+                            <!-- Endereço -->
+                            <div>
+                                <label for="endereco" class="block text-sm font-bold text-gray-700 mb-2">Endereço Completo *</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                        </svg>
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        name="endereco" 
+                                        id="endereco" 
+                                        x-model="endereco"
+                                        value="{{ form_data.endereco }}"
+                                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        placeholder="Rua, número, complemento"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Cidade e Estado -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="md:col-span-2">
+                                    <label for="cidade" class="block text-sm font-bold text-gray-700 mb-2">Cidade *</label>
+                                    <input 
+                                        type="text" 
+                                        name="cidade" 
+                                        id="cidade" 
+                                        x-model="cidade"
+                                        value="{{ form_data.cidade }}"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        required
+                                    >
+                                </div>
+                                <div>
+                                    <label for="estado" class="block text-sm font-bold text-gray-700 mb-2">UF *</label>
+                                    <input 
+                                        type="text" 
+                                        name="estado" 
+                                        id="estado" 
+                                        x-model="estado"
+                                        maxlength="2" 
+                                        x-mask="AA"
+                                        value="{{ form_data.estado }}"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium uppercase"
+                                        placeholder="SP"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Telefone -->
+                            <div>
+                                <label for="telefone" class="block text-sm font-bold text-gray-700 mb-2">Telefone para Contato *</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                        </svg>
+                                    </div>
+                                    <input 
+                                        type="tel" 
+                                        name="telefone" 
+                                        id="telefone" 
+                                        x-mask="(99) 99999-9999"
+                                        value="{{ form_data.telefone }}"
+                                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        placeholder="(00) 00000-0000"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end mt-8">
+                            <button 
+                                type="button"
+                                @click="nextStep()"
+                                class="px-8 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
                             >
+                                Próximo: Pagamento
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </button>
                         </div>
+                    </div>
+                </div>
 
-                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-                            <div class="form-group">
-                                <label for="cidade">Cidade *</label>
-                                <input 
-                                    type="text" 
-                                    name="cidade" 
-                                    id="cidade" 
-                                    class="form-control" 
-                                    value="{{ form_data.cidade }}"
-                                >
+                <!-- Step 2: Pagamento -->
+                <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
+                    <div class="bg-white rounded-2xl shadow-xl border-2 border-brand-100 p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
                             </div>
-
-                            <div class="form-group">
-                                <label for="estado">UF *</label>
-                                <input 
-                                    type="text" 
-                                    name="estado" 
-                                    id="estado" 
-                                    class="form-control" 
-                                    maxlength="2" 
-                                    placeholder="SP"
-                                    value="{{ form_data.estado }}"
-                                >
+                            <div>
+                                <h2 class="text-2xl font-display font-extrabold text-gray-900">Forma de Pagamento</h2>
+                                <p class="text-sm text-gray-600">Escolha como deseja pagar</p>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="cep">CEP *</label>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input 
-                                    type="text" 
-                                    name="cep" 
-                                    id="cep" 
-                                    class="form-control" 
-                                    placeholder="00000-000"
-                                    value="{{ form_data.cep }}"
-                                >
-                                <button type="submit" name="calcular_frete" value="1" class="btn btn-secondary">
-                                    Calcular Frete
-                                </button>
-                            </div>
-                            <small style="color: var(--cinza-escuro);">
-                                Informe o CEP e clique em "Calcular Frete" para visualizar o valor.
-                            </small>
+                        <!-- Payment Methods -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="cartao_credito" x-model="metodoPagamento" class="sr-only peer" {% if pagamento_data.metodo_pagamento == 'cartao_credito' %}checked{% endif %}>
+                                <div class="p-6 border-2 border-gray-200 rounded-xl peer-checked:border-brand-600 peer-checked:bg-brand-50 transition-all hover:border-brand-300">
+                                    <div class="flex flex-col items-center text-center">
+                                        <svg class="w-12 h-12 text-gray-400 peer-checked:text-brand-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                        </svg>
+                                        <p class="font-bold text-gray-900">Cartão de Crédito</p>
+                                        <p class="text-xs text-gray-600 mt-1">Parcelado em até 12x</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="pix" x-model="metodoPagamento" class="sr-only peer" {% if pagamento_data.metodo_pagamento == 'pix' %}checked{% endif %}>
+                                <div class="p-6 border-2 border-gray-200 rounded-xl peer-checked:border-brand-600 peer-checked:bg-brand-50 transition-all hover:border-brand-300">
+                                    <div class="flex flex-col items-center text-center">
+                                        <svg class="w-12 h-12 text-gray-400 peer-checked:text-brand-600 mb-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                        <p class="font-bold text-gray-900">PIX</p>
+                                        <p class="text-xs text-gray-600 mt-1">Aprovação imediata</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="metodo_pagamento" value="boleto" x-model="metodoPagamento" class="sr-only peer" {% if pagamento_data.metodo_pagamento == 'boleto' %}checked{% endif %}>
+                                <div class="p-6 border-2 border-gray-200 rounded-xl peer-checked:border-brand-600 peer-checked:bg-brand-50 transition-all hover:border-brand-300">
+                                    <div class="flex flex-col items-center text-center">
+                                        <svg class="w-12 h-12 text-gray-400 peer-checked:text-brand-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                                        </svg>
+                                        <p class="font-bold text-gray-900">Boleto</p>
+                                        <p class="text-xs text-gray-600 mt-1">Vence em 3 dias</p>
+                                    </div>
+                                </div>
+                            </label>
                         </div>
 
-                        <div class="form-group">
-                            <label for="telefone">Telefone *</label>
-                            <input 
-                                type="tel" 
-                                name="telefone" 
-                                id="telefone" 
-                                class="form-control" 
-                                placeholder="(00) 00000-0000"
-                                value="{{ form_data.telefone }}"
-                            >
-                        </div>
-
-                        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--surface-strong);">
-
-                        <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
-                            Pagamento
-                        </h2>
-
-                        <div class="form-group">
-                            <label>Forma de Pagamento *</label>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <label class="radio-inline">
-                                    <input type="radio" name="metodo_pagamento" value="cartao_credito" {% if pagamento_data.metodo_pagamento == 'cartao_credito' %}checked{% endif %}>
-                                    Cartão de Crédito
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="metodo_pagamento" value="pix" {% if pagamento_data.metodo_pagamento == 'pix' %}checked{% endif %}>
-                                    Pix
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="metodo_pagamento" value="boleto" {% if pagamento_data.metodo_pagamento == 'boleto' %}checked{% endif %}>
-                                    Boleto Bancário
-                                </label>
-                            </div>
-                        </div>
-
-                        <div id="cartao-fields" style="margin-top: 1rem;">
-                            <div class="form-group">
-                                <label for="numero_cartao">Número do Cartão *</label>
-                                <input 
-                                    type="text" 
-                                    name="numero_cartao" 
-                                    id="numero_cartao" 
-                                    class="form-control"
-                                    placeholder="0000 0000 0000 0000"
-                                    value="{{ pagamento_data.numero_cartao }}"
-                                >
+                        <!-- Card Fields (conditional) -->
+                        <div x-show="metodoPagamento === 'cartao_credito'" x-transition class="space-y-5">
+                            <div>
+                                <label for="numero_cartao" class="block text-sm font-bold text-gray-700 mb-2">Número do Cartão *</label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        name="numero_cartao" 
+                                        id="numero_cartao" 
+                                        x-mask="9999 9999 9999 9999"
+                                        value="{{ pagamento_data.numero_cartao }}"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        placeholder="0000 0000 0000 0000"
+                                    >
+                                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center gap-1">
+                                        <img src="https://img.icons8.com/color/32/000000/visa.png" alt="Visa" class="w-8 h-8 opacity-50">
+                                        <img src="https://img.icons8.com/color/32/000000/mastercard.png" alt="Master" class="w-8 h-8 opacity-50">
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="nome_portador">Nome do Titular *</label>
+                            <div>
+                                <label for="nome_portador" class="block text-sm font-bold text-gray-700 mb-2">Nome do Titular *</label>
                                 <input 
                                     type="text" 
                                     name="nome_portador" 
                                     id="nome_portador" 
-                                    class="form-control"
-                                    placeholder="Nome impresso no cartão"
                                     value="{{ pagamento_data.nome_portador }}"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium uppercase"
+                                    placeholder="NOME IMPRESSO NO CARTÃO"
                                 >
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <div class="form-group">
-                                    <label for="validade">Validade (MM/AA) *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="validade" class="block text-sm font-bold text-gray-700 mb-2">Validade *</label>
                                     <input 
                                         type="text" 
                                         name="validade" 
                                         id="validade" 
-                                        class="form-control"
-                                        placeholder="MM/AA"
+                                        x-mask="99/99"
                                         value="{{ pagamento_data.validade }}"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        placeholder="MM/AA"
                                     >
                                 </div>
-
-                                <div class="form-group">
-                                    <label for="cvv">CVV *</label>
+                                <div>
+                                    <label for="cvv" class="block text-sm font-bold text-gray-700 mb-2">CVV *</label>
                                     <input 
                                         type="text" 
                                         name="cvv" 
                                         id="cvv" 
-                                        class="form-control"
-                                        placeholder="3 ou 4 dígitos"
+                                        x-mask="9999"
+                                        maxlength="4"
                                         value="{{ pagamento_data.cvv }}"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-500 focus:ring-4 focus:ring-brand-100 transition-all outline-none font-medium"
+                                        placeholder="123"
                                     >
                                 </div>
                             </div>
                         </div>
 
-                        <div id="pix-info" class="payment-hint" style="display: none; margin-top: 1.5rem;">
-                            O código Pix será gerado automaticamente após a confirmação do pedido.
-                        </div>
-
-                        <div id="boleto-info" class="payment-hint" style="display: none; margin-top: 1.5rem;">
-                            O boleto será disponibilizado na página de confirmação e também enviado por e-mail.
-                        </div>
-
-                        <button type="submit" name="finalizar_pedido" value="1" class="btn btn-primary btn-block" style="font-size: 1.1rem; margin-top: 1.5rem;">
-                            Confirmar Pedido
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Resumo do Pedido -->
-        <div>
-            <div class="card">
-                <div class="card-body">
-                    <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
-                        Resumo do Pedido
-                    </h2>
-
-                    <div style="max-height: 400px; overflow-y: auto; margin-bottom: 1.5rem;">
-                        {% for item in itens_carrinho %}
-                        <div style="padding: 1rem 0; border-bottom: 1px solid var(--cinza-medio);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <strong>{{ item.produto.nome }}</strong>
-                                <span>{{ item.quantidade }}x</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; color: var(--cinza-escuro);">
-                                <span>R$ {{ item.produto.preco_final }} cada</span>
-                                <strong style="color: var(--verde-principal);">R$ {{ item.subtotal }}</strong>
+                        <!-- PIX Info -->
+                        <div x-show="metodoPagamento === 'pix'" x-transition class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                            <div class="flex items-start gap-4">
+                                <svg class="w-8 h-8 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold text-blue-900 mb-2">Como funciona o PIX</h4>
+                                    <p class="text-sm text-blue-800">O código QR Code e a chave PIX serão gerados após confirmar o pedido. O pagamento é processado instantaneamente.</p>
+                                </div>
                             </div>
                         </div>
-                        {% endfor %}
+
+                        <!-- Boleto Info -->
+                        <div x-show="metodoPagamento === 'boleto'" x-transition class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                            <div class="flex items-start gap-4">
+                                <svg class="w-8 h-8 text-yellow-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h4 class="font-bold text-yellow-900 mb-2">Como funciona o Boleto</h4>
+                                    <p class="text-sm text-yellow-800">O boleto será enviado por email e disponível para download. Prazo de vencimento: 3 dias úteis.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-8">
+                            <button 
+                                type="button"
+                                @click="prevStep()"
+                                class="px-8 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                                </svg>
+                                Voltar
+                            </button>
+                            <button 
+                                type="button"
+                                @click="nextStep()"
+                                class="px-8 py-3 bg-brand-600 text-white font-bold rounded-xl hover:bg-brand-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                            >
+                                Próximo: Revisão
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Revisão -->
+                <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" style="display: none;">
+                    <div class="bg-white rounded-2xl shadow-xl border-2 border-brand-100 p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-display font-extrabold text-gray-900">Revisar Pedido</h2>
+                                <p class="text-sm text-gray-600">Confira todos os dados antes de finalizar</p>
+                            </div>
+                        </div>
+
+                        <!-- Review Summary -->
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    </svg>
+                                    Endereço de Entrega
+                                </h3>
+                                <p class="text-gray-700">
+                                    <span x-text="endereco || '{{ form_data.endereco }}'"></span><br>
+                                    <span x-text="cidade || '{{ form_data.cidade }}'"></span> - <span x-text="estado || '{{ form_data.estado }}'"></span><br>
+                                    CEP: <span x-text="document.getElementById('cep').value || '{{ form_data.cep }}'"></span>
+                                </p>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                    </svg>
+                                    Forma de Pagamento
+                                </h3>
+                                <p class="text-gray-700">
+                                    <span x-show="metodoPagamento === 'cartao_credito'">💳 Cartão de Crédito</span>
+                                    <span x-show="metodoPagamento === 'pix'">✅ PIX - Aprovação Imediata</span>
+                                    <span x-show="metodoPagamento === 'boleto'">📄 Boleto Bancário</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-8">
+                            <button 
+                                type="button"
+                                @click="prevStep()"
+                                class="px-8 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all flex items-center gap-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                                </svg>
+                                Voltar
+                            </button>
+                            <button 
+                                type="submit"
+                                name="finalizar_pedido" 
+                                value="1"
+                                class="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-xl hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Confirmar Pedido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resumo Lateral (Sticky) -->
+        <aside class="lg:col-span-1">
+            <div class="sticky top-24" data-aos="fade-left">
+                <div class="bg-white rounded-2xl shadow-xl border-2 border-brand-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-trust-600 p-6 text-white">
+                        <h2 class="text-xl font-display font-extrabold">Resumo do Pedido</h2>
                     </div>
 
-                    <div style="border-top: 2px solid var(--verde-principal); padding-top: 1rem;">
-                        <p style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span>Subtotal:</span>
-                            <strong>R$ {{ total }}</strong>
-                        </p>
-                        <p style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                            <span>Frete:</span>
-                            {% if valor_frete and valor_frete > 0 %}
-                                <strong style="color: var(--verde-principal);">R$ {{ valor_frete }}</strong>
-                            {% elif valor_frete == 0 %}
-                                <strong style="color: var(--verde-principal);">R$ 0,00</strong>
-                            {% else %}
-                                <strong style="color: var(--cinza-escuro); font-size: 0.95rem;">Calcule o frete informando o CEP</strong>
-                            {% endif %}
-                        </p>
-                        <p style="display: flex; justify-content: space-between; font-size: 1.8rem; font-weight: bold; color: var(--verde-principal);">
-                            <span>Total:</span>
-                            <span>R$ {{ total_geral }}</span>
-                        </p>
+                    <div class="p-6">
+                        <div class="max-h-64 overflow-y-auto space-y-4 mb-6">
+                            {% for item in itens_carrinho %}
+                            <div class="flex gap-3 pb-4 border-b border-gray-200">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                                    {% if item.produto.imagem %}
+                                        <img src="{{ item.produto.thumbnail.url }}" alt="{{ item.produto.nome }}" class="w-full h-full object-cover" loading="lazy">
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-semibold text-sm text-gray-900 truncate">{{ item.produto.nome }}</h4>
+                                    <p class="text-xs text-gray-600">{{ item.quantidade }}x R$ {{ item.produto.preco_final }}</p>
+                                    <p class="text-sm font-bold text-brand-600">R$ {{ item.subtotal }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="space-y-3 mb-6 pb-6 border-b-2 border-gray-200">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Subtotal</span>
+                                <span class="font-semibold">R$ {{ total }}</span>
+                            </div>
+                            <div class="flex justify-between text-gray-700">
+                                <span>Frete</span>
+                                {% if valor_frete and valor_frete > 0 %}
+                                    <span class="font-semibold text-brand-600">R$ {{ valor_frete }}</span>
+                                {% elif valor_frete == 0 %}
+                                    <span class="font-semibold text-green-600">GRÁTIS</span>
+                                {% else %}
+                                    <span class="text-sm text-gray-500">A calcular</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-lg font-bold text-gray-900">Total</span>
+                            <span class="text-3xl font-extrabold text-brand-600">R$ {{ total_geral }}</span>
+                        </div>
+
+                        <a href="{% url 'pedidos:carrinho' %}" class="block w-full px-4 py-3 bg-gray-100 text-gray-700 font-semibold text-center rounded-xl hover:bg-gray-200 transition-colors">
+                            ← Voltar ao Carrinho
+                        </a>
                     </div>
                 </div>
             </div>
-
-            <a href="{% url 'pedidos:carrinho' %}" class="btn btn-secondary btn-block" style="margin-top: 1rem;">
-                ← Voltar ao Carrinho
-            </a>
-        </div>
+        </aside>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
 <script>
-    (function () {
-        var metodoInputs = document.querySelectorAll('input[name="metodo_pagamento"]');
-        var cartaoFields = document.getElementById('cartao-fields');
-        var pixInfo = document.getElementById('pix-info');
-        var boletoInfo = document.getElementById('boleto-info');
-
-        function atualizarCamposPagamento() {
-            var selecionado = document.querySelector('input[name="metodo_pagamento"]:checked');
-            var metodo = selecionado ? selecionado.value : 'cartao_credito';
-
-            if (metodo === 'cartao_credito') {
-                cartaoFields.style.display = 'block';
-            } else {
-                cartaoFields.style.display = 'none';
+function checkoutWizard() {
+    return {
+        currentStep: 1,
+        metodoPagamento: '{{ pagamento_data.metodo_pagamento|default:"cartao_credito" }}',
+        endereco: '{{ form_data.endereco }}',
+        cidade: '{{ form_data.cidade }}',
+        estado: '{{ form_data.estado }}',
+        
+        nextStep() {
+            if (this.currentStep < 3) {
+                this.currentStep++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-
-            pixInfo.style.display = metodo === 'pix' ? 'block' : 'none';
-            boletoInfo.style.display = metodo === 'boleto' ? 'block' : 'none';
+        },
+        
+        prevStep() {
+            if (this.currentStep > 1) {
+                this.currentStep--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        
+        handleSubmit(e) {
+            if (this.currentStep < 3) {
+                e.preventDefault();
+                this.nextStep();
+            }
+        },
+        
+        async buscarCEP(cep) {
+            cep = cep.replace(/\D/g, '');
+            if (cep.length === 8) {
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    if (!data.erro) {
+                        this.endereco = data.logradouro;
+                        this.cidade = data.localidade;
+                        this.estado = data.uf;
+                        document.getElementById('endereco').value = data.logradouro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('estado').value = data.uf;
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                }
+            }
         }
-
-        metodoInputs.forEach(function (input) {
-            input.addEventListener('change', atualizarCamposPagamento);
-        });
-
-        atualizarCamposPagamento();
-    })();
+    }
+}
 </script>
 {% endblock %}
