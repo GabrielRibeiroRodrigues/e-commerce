@@ -56,7 +56,12 @@ def registro(request):
     else:
         form = UserCreationForm()
     
-    return render(request, 'usuarios/registro.html', {'form': form})
+    context = {
+        'form': form,
+        'google_login_enabled': bool(settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET),
+        'google_next': None,
+    }
+    return render(request, 'usuarios/registro.html', context)
 
 
 def login_view(request):
