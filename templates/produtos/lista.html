@@ -268,10 +268,10 @@
 
                 <!-- Paginação Premium -->
                 {% if page_obj.paginator.num_pages > 1 %}
-                <nav class="pagination-premium">
+                <nav class="pagination-premium flex justify-center items-center gap-2 mt-8">
                     {% if page_obj.has_previous %}
                         <a href="?page={{ page_obj.previous_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
-                           class="pagination-btn pagination-prev">
+                           class="pagination-btn pagination-prev flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M12 16l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -279,19 +279,19 @@
                         </a>
                     {% endif %}
 
-                    <div class="pagination-numbers">
+                    <div class="flex gap-2">
                         {% if page_obj.number > 2 %}
                             <a href="?page=1{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
-                               class="pagination-number">1</a>
+                               class="pagination-number px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50">1</a>
                             {% if page_obj.number > 3 %}
-                                <span class="pagination-ellipsis">...</span>
+                                <span class="pagination-ellipsis px-2">...</span>
                             {% endif %}
                         {% endif %}
 
                         {% for num in page_obj.paginator.page_range %}
                             {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %}
                                 <a href="?page={{ num }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
-                                   class="pagination-number {% if num == page_obj.number %}active{% endif %}">
+                                   class="pagination-number px-3 py-2 rounded-lg border border-gray-200 {% if num == page_obj.number %}bg-trust-600 text-white font-bold{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
                                     {{ num }}
                                 </a>
                             {% endif %}
@@ -299,16 +299,16 @@
 
                         {% if page_obj.number < page_obj.paginator.num_pages|add:'-1' %}
                             {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
-                                <span class="pagination-ellipsis">...</span>
+                                <span class="pagination-ellipsis px-2">...</span>
                             {% endif %}
                             <a href="?page={{ page_obj.paginator.num_pages }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
-                               class="pagination-number">{{ page_obj.paginator.num_pages }}</a>
+                               class="pagination-number px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50">{{ page_obj.paginator.num_pages }}</a>
                         {% endif %}
                     </div>
 
                     {% if page_obj.has_next %}
                         <a href="?page={{ page_obj.next_page_number }}{% if categoria_selecionada %}&categoria={{ categoria_selecionada }}{% endif %}{% if busca %}&q={{ busca }}{% endif %}{% if ordem %}&ordem={{ ordem }}{% endif %}" 
-                           class="pagination-btn pagination-next">
+                           class="pagination-btn pagination-next flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50">
                             <span>Próxima</span>
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
