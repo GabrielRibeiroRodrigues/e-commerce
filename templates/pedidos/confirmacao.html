@@ -3,119 +3,242 @@
 {% block title %}Pedido Confirmado - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 800px; margin-top: 3rem; margin-bottom: 3rem;">
-    <div class="card">
-        <div class="card-body" style="padding: 3rem; text-align: center;">
-            <div style="width: 80px; height: 80px; background-color: var(--brand-050); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-600)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-            </div>
-            
-            <h1 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 2rem;">
-                Pedido Confirmado!
-            </h1>
-            
-            <p style="font-size: 1.2rem; color: var(--cinza-escuro); margin-bottom: 2rem;">
-                Obrigado por comprar na Farmácia QUEOPS!
-            </p>
+<!-- Hero Success Animation -->
+<section class="bg-gradient-to-r from-green-50 via-white to-brand-50 py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Success Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden" data-aos="fade-up">
+            <!-- Animated Success Icon -->
+            <div class="text-center px-8 py-12 bg-gradient-to-b from-green-50 to-white">
+                <div class="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center animate-pulse">
+                    <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                
+                <h1 class="text-4xl font-display font-extrabold text-gray-900 mb-3" data-aos="fade-down" data-aos-delay="100">
+                    Pedido Confirmado!
+                </h1>
+                
+                <p class="text-xl text-gray-600 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    Obrigado por comprar na Farmácia QUEOPS!
+                </p>
 
-            <div style="background-color: var(--surface-muted); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h2 style="color: var(--brand-600); margin-bottom: 1.5rem; font-size: 1.4rem;">
-                    Detalhes do Pedido
-                </h2>
-
-                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
-                    <strong>Número do Pedido:</strong> #{{ pedido.id }}
-                </p>
-                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
-                    <strong>Data:</strong> {{ pedido.criado_em|date:"d/m/Y H:i" }}
-                </p>
-                <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">
-                    <strong>Status:</strong> {{ pedido.get_status_display }}
-                </p>
-                <div style="margin-top: 1rem; text-align: left;">
-                    <p style="display: flex; justify-content: space-between; font-size: 1.05rem;">
-                        <span><strong>Subtotal:</strong></span>
-                        <span>R$ {{ pedido.total }}</span>
-                    </p>
-                    <p style="display: flex; justify-content: space-between; font-size: 1.05rem;">
-                        <span><strong>Frete:</strong></span>
-                        <span>R$ {{ pedido.valor_frete }}</span>
-                    </p>
-                    <p style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; color: var(--verde-principal);">
-                        <span>Total:</span>
-                        <span>R$ {{ pedido.total_com_frete }}</span>
-                    </p>
+                <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-100 text-green-800 rounded-full font-semibold" data-aos="zoom-in" data-aos-delay="300">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Pedido #{{ pedido.id }}
                 </div>
             </div>
 
-            {% if pagamento %}
-            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
-                    Informações de Pagamento
-                </h3>
-                <p><strong>Método:</strong> {{ pagamento.get_metodo_display }}</p>
-                <p><strong>Status:</strong> {{ pagamento.get_status_display }}</p>
-                {% if pagamento.cartao_final %}
-                    <p><strong>Cartão final:</strong> **** **** **** {{ pagamento.cartao_final }}</p>
-                {% endif %}
-                {% if pagamento.codigo_confirmacao %}
-                    <p><strong>Código/Comprovante:</strong> {{ pagamento.codigo_confirmacao }}</p>
-                {% endif %}
-                {% if pagamento.mensagem_retorno %}
-                    <p style="color: var(--cinza-escuro);">{{ pagamento.mensagem_retorno }}</p>
-                {% endif %}
-            </div>
-            {% endif %}
-
-            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
-                    Endereço de Entrega
-                </h3>
-                <p><strong>Endereço:</strong> {{ pedido.endereco }}</p>
-                <p><strong>Cidade/UF:</strong> {{ pedido.cidade }}/{{ pedido.estado }}</p>
-                <p><strong>CEP:</strong> {{ pedido.cep }}</p>
-                <p><strong>Telefone:</strong> {{ pedido.telefone }}</p>
-            </div>
-
-            <div style="background-color: var(--surface-base); padding: 2rem; border: 2px solid var(--surface-strong); border-radius: 8px; margin-bottom: 2rem; text-align: left;">
-                <h3 style="color: var(--brand-600); margin-bottom: 1rem; font-size: 1.2rem;">
-                    Itens do Pedido
-                </h3>
-                <ul style="list-style: none; padding: 0;">
-                    {% for item in pedido.itens.all %}
-                        <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--cinza-medio);">
-                            <div style="display: flex; justify-content: space-between;">
-                                <div>
-                                    <strong>{{ item.quantidade }}x</strong> {{ item.produto.nome }}
-                                    <br>
-                                    <span style="color: var(--cinza-escuro); font-size: 0.9rem;">
-                                        R$ {{ item.preco_unitario }} cada
-                                    </span>
-                                </div>
-                                <strong style="color: var(--verde-principal);">
-                                    R$ {{ item.subtotal }}
-                                </strong>
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Timeline de Status -->
+                <div class="mb-8" data-aos="fade-up" data-aos-delay="400">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Acompanhamento do Pedido
+                    </h2>
+                    
+                    <div class="relative">
+                        <div class="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200"></div>
+                        
+                        <!-- Step 1: Confirmado -->
+                        <div class="relative flex items-start gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 relative z-10">
+                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
                             </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+                            <div class="pt-2">
+                                <p class="font-bold text-gray-900">Pedido Confirmado</p>
+                                <p class="text-sm text-gray-600">{{ pedido.criado_em|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
 
-            <p style="color: var(--cinza-escuro); margin-bottom: 2rem;">
-                Você receberá um e-mail com mais informações sobre o acompanhamento do seu pedido.
-            </p>
+                        <!-- Step 2: Em Preparação -->
+                        <div class="relative flex items-start gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 relative z-10">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div class="pt-2">
+                                <p class="font-bold text-gray-700">Em Preparação</p>
+                                <p class="text-sm text-gray-500">Aguardando</p>
+                            </div>
+                        </div>
 
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <a href="{% url 'usuarios:perfil' %}" class="btn btn-primary">
-                    Ver Meus Pedidos
-                </a>
-                <a href="{% url 'produtos:lista' %}" class="btn btn-secondary">
-                    Continuar Comprando
-                </a>
+                        <!-- Step 3: Enviado -->
+                        <div class="relative flex items-start gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 relative z-10">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                                </svg>
+                            </div>
+                            <div class="pt-2">
+                                <p class="font-bold text-gray-700">Enviado</p>
+                                <p class="text-sm text-gray-500">Aguardando</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Entregue -->
+                        <div class="relative flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 relative z-10">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                            </div>
+                            <div class="pt-2">
+                                <p class="font-bold text-gray-700">Entregue</p>
+                                <p class="text-sm text-gray-500">Aguardando</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Resumo Financeiro -->
+                    <div class="bg-gradient-to-br from-brand-50 to-white p-6 rounded-2xl border border-brand-100" data-aos="fade-right" data-aos-delay="500">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            Resumo Financeiro
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-gray-700">
+                                <span>Subtotal:</span>
+                                <span class="font-semibold">R$ {{ pedido.total }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-gray-700">
+                                <span>Frete:</span>
+                                <span class="font-semibold">R$ {{ pedido.valor_frete }}</span>
+                            </div>
+                            <div class="pt-3 border-t-2 border-brand-200">
+                                <div class="flex justify-between items-center text-brand-700">
+                                    <span class="text-lg font-bold">Total:</span>
+                                    <span class="text-2xl font-extrabold">R$ {{ pedido.total_com_frete }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Endereço de Entrega -->
+                    <div class="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100" data-aos="fade-left" data-aos-delay="500">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Endereço de Entrega
+                        </h3>
+                        <div class="space-y-2 text-sm">
+                            <p class="text-gray-700"><span class="font-semibold">Endereço:</span> {{ pedido.endereco }}</p>
+                            <p class="text-gray-700"><span class="font-semibold">Cidade/UF:</span> {{ pedido.cidade }}/{{ pedido.estado }}</p>
+                            <p class="text-gray-700"><span class="font-semibold">CEP:</span> {{ pedido.cep }}</p>
+                            <p class="text-gray-700"><span class="font-semibold">Telefone:</span> {{ pedido.telefone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if pagamento %}
+                <!-- Informações de Pagamento -->
+                <div class="mt-6 bg-gradient-to-br from-purple-50 to-white p-6 rounded-2xl border border-purple-100" data-aos="fade-up" data-aos-delay="600">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        Informações de Pagamento
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <p class="text-gray-700"><span class="font-semibold">Método:</span> {{ pagamento.get_metodo_display }}</p>
+                        <p class="text-gray-700">
+                            <span class="font-semibold">Status:</span> 
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 ml-1">
+                                {{ pagamento.get_status_display }}
+                            </span>
+                        </p>
+                        {% if pagamento.cartao_final %}
+                            <p class="text-gray-700"><span class="font-semibold">Cartão:</span> **** **** **** {{ pagamento.cartao_final }}</p>
+                        {% endif %}
+                        {% if pagamento.codigo_confirmacao %}
+                            <p class="text-gray-700"><span class="font-semibold">Confirmação:</span> {{ pagamento.codigo_confirmacao }}</p>
+                        {% endif %}
+                    </div>
+                    {% if pagamento.mensagem_retorno %}
+                        <p class="mt-3 text-gray-600 text-sm">{{ pagamento.mensagem_retorno }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Itens do Pedido -->
+                <div class="mt-6 bg-white border-2 border-gray-200 rounded-2xl overflow-hidden" data-aos="fade-up" data-aos-delay="700">
+                    <div class="bg-gray-50 px-6 py-4 border-b-2 border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            Itens do Pedido
+                        </h3>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        {% for item in pedido.itens.all %}
+                            <div class="p-6 hover:bg-gray-50 transition-colors">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <p class="font-bold text-gray-900 mb-1">
+                                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-100 text-brand-700 text-xs font-bold mr-2">
+                                                {{ item.quantidade }}
+                                            </span>
+                                            {{ item.produto.nome }}
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            R$ {{ item.preco_unitario }} cada
+                                        </p>
+                                    </div>
+                                    <p class="text-lg font-extrabold text-brand-700 flex-shrink-0">
+                                        R$ {{ item.subtotal }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Avisos e Ações -->
+                <div class="mt-8 p-5 bg-blue-50 rounded-xl border border-blue-100" data-aos="fade-up" data-aos-delay="800">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-blue-900 mb-1">Fique tranquilo!</p>
+                            <p class="text-sm text-blue-800">Você receberá um e-mail com mais informações sobre o acompanhamento do seu pedido. Guarde o número do pedido para consultas futuras.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center" data-aos="zoom-in" data-aos-delay="900">
+                    <a href="{% url 'usuarios:perfil' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-105">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                        Ver Meus Pedidos
+                    </a>
+                    <a href="{% url 'produtos:lista' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-xl hover:border-brand-300 hover:text-brand-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Continuar Comprando
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
