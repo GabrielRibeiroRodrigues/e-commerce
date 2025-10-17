@@ -479,6 +479,9 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Skeleton Loaders (componentes reutilizáveis) -->
+    {% include 'includes/skeleton_loaders.html' %}
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -676,6 +679,114 @@
                 window.dispatchEvent(new CustomEvent('toast', {
                     detail: { type: 'info', title, message, duration }
                 }));
+            }
+        };
+        
+        // Skeleton Loader Helpers
+        window.skeletonLoader = {
+            /**
+             * Mostra skeleton loader e esconde conteúdo
+             * @param {string} contentId - ID do elemento de conteúdo
+             * @param {string} skeletonId - ID do skeleton loader
+             */
+            show: (contentId, skeletonId) => {
+                const content = document.getElementById(contentId);
+                const skeleton = document.getElementById(skeletonId);
+                
+                if (content) content.classList.add('hidden');
+                if (skeleton) skeleton.classList.remove('hidden');
+            },
+            
+            /**
+             * Esconde skeleton loader e mostra conteúdo
+             * @param {string} contentId - ID do elemento de conteúdo
+             * @param {string} skeletonId - ID do skeleton loader
+             */
+            hide: (contentId, skeletonId) => {
+                const skeleton = document.getElementById(skeletonId);
+                const content = document.getElementById(contentId);
+                
+                if (skeleton) skeleton.classList.add('hidden');
+                if (content) content.classList.remove('hidden');
+            },
+            
+            /**
+             * Wrapper para requisições com skeleton loader
+             * @param {string} contentId - ID do elemento de conteúdo
+             * @param {string} skeletonId - ID do skeleton loader
+             * @param {Function} fetchFn - Função assíncrona que faz a requisição
+             */
+            async wrap(contentId, skeletonId, fetchFn) {
+                this.show(contentId, skeletonId);
+                try {
+                    const result = await fetchFn();
+                    return result;
+                } catch (error) {
+                    console.error('Erro ao carregar:', error);
+                    throw error;
+                } finally {
+                    this.hide(contentId, skeletonId);
+                }
+            }
+        };
+        
+        // Button Loading Helper
+        window.buttonLoader = {
+            /**
+             * Adiciona estado de loading a um botão
+             * @param {HTMLButtonElement} button - Elemento do botão
+             * @param {string} loadingText - Texto durante loading (opcional)
+             */
+            start: (button, loadingText = 'Carregando...') => {
+                if (!button) return;
+                
+                button.disabled = true;
+                button.setAttribute('data-original-html', button.innerHTML);
+                button.classList.add('opacity-75', 'cursor-not-allowed');
+                
+                button.innerHTML = `
+                    <svg class="animate-spin inline-block w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    ${loadingText}
+                `;
+            },
+            
+            /**
+             * Remove estado de loading de um botão
+             * @param {HTMLButtonElement} button - Elemento do botão
+             */
+            stop: (button) => {
+                if (!button) return;
+                
+                button.disabled = false;
+                button.classList.remove('opacity-75', 'cursor-not-allowed');
+                
+                const originalHtml = button.getAttribute('data-original-html');
+                if (originalHtml) {
+                    button.innerHTML = originalHtml;
+                    button.removeAttribute('data-original-html');
+                }
+            },
+            
+            /**
+             * Wrapper para ações de botão com loading
+             * @param {HTMLButtonElement} button - Elemento do botão
+             * @param {Function} actionFn - Função assíncrona da ação
+             * @param {string} loadingText - Texto durante loading
+             */
+            async wrap(button, actionFn, loadingText = 'Processando...') {
+                this.start(button, loadingText);
+                try {
+                    const result = await actionFn();
+                    return result;
+                } catch (error) {
+                    console.error('Erro na ação:', error);
+                    throw error;
+                } finally {
+                    this.stop(button);
+                }
             }
         };
         
