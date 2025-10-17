@@ -4,75 +4,196 @@
 {% block title %}Lista de Desejos - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div class="page-hero">
-    <div class="container">
-        <h1 class="hero-heading">Minha Lista de Desejos</h1>
-        <p class="hero-subtitle">Salve seus produtos favoritos para comprar depois</p>
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-brand-50 via-white to-red-50 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-display font-extrabold text-gray-900">Minha Lista de Desejos</h1>
+                        <p class="text-gray-600 mt-1">Salve seus produtos favoritos para comprar depois</p>
+                    </div>
+                </div>
+            </div>
+            {% if itens_desejados %}
+            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
+                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <span class="font-semibold text-gray-900">{{ itens_desejados|length }}</span>
+                <span class="text-gray-600">item{{ itens_desejados|length|pluralize }}</span>
+            </div>
+            {% endif %}
+        </div>
     </div>
-</div>
+</section>
 
-<div class="container" style="margin-top: 2rem;">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ removingId: null }">
     {% if itens_desejados %}
-        <div class="produtos-grid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-aos="fade-up">
             {% for item in itens_desejados %}
-            <div class="card">
-                {% if item.produto.imagem %}
-                    <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" class="card-img">
-                {% else %}
-                    <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ item.produto.nome }}" class="card-img">
-                {% endif %}
-                <div class="card-body">
-                    <h3 class="card-title">{{ item.produto.nome }}</h3>
-                    <p class="card-text">{{ item.produto.descricao|truncatewords:18 }}</p>
-                    <p style="color: var(--cinza-escuro); font-size: 0.9rem; margin-bottom: 0.75rem;">
-                        Adicionado em {{ item.criado_em|date:"d/m/Y" }}
-                    </p>
-
-                    {% if item.produto.tem_promocao %}
-                        <div>
-                            <span class="preco-antigo">R$ {{ item.produto.preco }}</span>
-                            <div class="preco preco-promocional">R$ {{ item.produto.preco_promocional }}</div>
-                        </div>
+            <article class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:50 }}">
+                <!-- Imagem -->
+                <div class="relative bg-gray-50 aspect-square overflow-hidden group">
+                    {% if item.produto.imagem %}
+                        <img src="{{ item.produto.imagem.url }}" alt="{{ item.produto.nome }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
                     {% else %}
-                        <div class="preco">R$ {{ item.produto.preco_final }}</div>
+                        <img src="{% static 'img/produto-sem-imagem.png' %}" alt="{{ item.produto.nome }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" loading="lazy">
+                    {% endif %}
+                    
+                    <!-- Badge Promoção -->
+                    {% if item.produto.tem_promocao %}
+                    <div class="absolute top-3 left-3">
+                        <span class="px-2.5 py-1 bg-red-500 text-white text-xs font-bold rounded-full shadow-lg">
+                            {% widthratio item.produto.preco_promocional item.produto.preco 100 as discount %}
+                            -{{ discount|add:"-100"|stringformat:"d" }}%
+                        </span>
+                    </div>
                     {% endif %}
 
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
-                        <a href="{% url 'produtos:detalhe' item.produto.slug %}" class="btn btn-primary btn-block">
+                    <!-- Botão Remover -->
+                    <button @click="removingId='{{ item.produto.id }}'" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-all hover:scale-110" title="Remover dos favoritos">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Conteúdo -->
+                <div class="p-4 flex flex-col flex-grow">
+                    <a href="{% url 'produtos:detalhe' item.produto.slug %}" class="hover:text-brand-700 transition-colors">
+                        <h3 class="font-semibold text-gray-900 text-base line-clamp-2 mb-2">{{ item.produto.nome }}</h3>
+                    </a>
+                    
+                    <p class="text-sm text-gray-600 line-clamp-2 mb-3">{{ item.produto.descricao|truncatewords:15 }}</p>
+                    
+                    <div class="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Adicionado em {{ item.criado_em|date:"d/m/Y" }}</span>
+                    </div>
+
+                    <!-- Preço -->
+                    <div class="mb-4">
+                        {% if item.produto.tem_promocao %}
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm text-gray-400 line-through">R$ {{ item.produto.preco }}</span>
+                            </div>
+                            <div class="text-2xl font-extrabold text-brand-700">R$ {{ item.produto.preco_promocional }}</div>
+                        {% else %}
+                            <div class="text-2xl font-extrabold text-brand-700">R$ {{ item.produto.preco_final }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status Estoque -->
+                    <div class="mb-4">
+                        {% if item.produto.estoque > 10 %}
+                            <div class="flex items-center gap-1.5 text-xs text-green-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="font-medium">Em estoque</span>
+                            </div>
+                        {% elif item.produto.estoque > 0 %}
+                            <div class="flex items-center gap-1.5 text-xs text-amber-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span class="font-medium">Últimas {{ item.produto.estoque }} unidades</span>
+                            </div>
+                        {% else %}
+                            <div class="flex items-center gap-1.5 text-xs text-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="font-medium">Indisponível</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="space-y-2 mt-auto">
+                        <a href="{% url 'produtos:detalhe' item.produto.slug %}" class="block w-full text-center px-4 py-2.5 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-brand-300 hover:text-brand-700 transition-all">
                             Ver Detalhes
                         </a>
                         <form action="{% url 'pedidos:adicionar_carrinho' item.produto.id %}" method="post">
                             {% csrf_token %}
                             <input type="hidden" name="quantidade" value="1">
                             <input type="hidden" name="next" value="{% url 'usuarios:lista_desejos' %}">
-                            <button type="submit" class="btn btn-secondary btn-block" {% if not item.produto.disponivel %}disabled{% endif %}>
+                            <button type="submit" class="w-full px-4 py-2.5 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed" {% if not item.produto.disponivel %}disabled{% endif %}>
                                 {% if item.produto.disponivel %}
-                                    Adicionar ao Carrinho
+                                    <span class="flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                        Adicionar ao Carrinho
+                                    </span>
                                 {% else %}
                                     Produto Indisponível
                                 {% endif %}
                             </button>
                         </form>
-                        <form action="{% url 'usuarios:remover_desejo' item.produto.id %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="next" value="{% url 'usuarios:lista_desejos' %}">
-                            <button type="submit" class="btn btn-danger btn-block">
-                                Remover da Lista
-                            </button>
-                        </form>
                     </div>
                 </div>
-            </div>
+
+                <!-- Form de remoção (escondido) -->
+                <form id="remover-{{ item.produto.id }}" action="{% url 'usuarios:remover_desejo' item.produto.id %}" method="post" class="hidden">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{% url 'usuarios:lista_desejos' %}">
+                </form>
+            </article>
             {% endfor %}
         </div>
+
+        <!-- Modal de Confirmação de Remoção -->
+        <div x-cloak x-show="removingId" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" x-transition>
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" @click.away="removingId=null" x-transition>
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Remover dos favoritos?</h3>
+                        <p class="text-gray-600 mt-1">Você pode adicionar novamente depois.</p>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button class="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 font-semibold transition-colors" @click="removingId=null">Cancelar</button>
+                    <button class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold transition-colors" @click="document.getElementById('remover-'+removingId).submit()">Remover</button>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-        <div class="empty-cart">
-            <h2>Sua lista de desejos está vazia</h2>
-            <p>Explore nossos produtos e adicione seus favoritos aqui!</p>
-            <a href="{% url 'produtos:lista' %}" class="btn btn-primary">
+        <!-- Estado Vazio -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center max-w-2xl mx-auto" data-aos="fade-up">
+            <div class="mx-auto w-20 h-20 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mb-6">
+                <svg class="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-900 mb-2">Sua lista de desejos está vazia</h2>
+            <p class="text-gray-600 mb-6">Explore nossos produtos e adicione seus favoritos aqui!</p>
+            <a href="{% url 'produtos:lista' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl shadow-lg transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
                 Buscar Produtos
             </a>
         </div>
     {% endif %}
 </div>
+
+<style>
+[x-cloak] { display: none !important; }
+</style>
 {% endblock %}
