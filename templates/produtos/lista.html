@@ -216,6 +216,29 @@
                             <h3 class="product-title">
                                 <a href="{% url 'produtos:detalhe' produto.slug %}">{{ produto.nome }}</a>
                             </h3>
+                            
+                            <!-- Rating Stars -->
+                            {% if produto.total_avaliacoes > 0 %}
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="flex gap-0.5">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= produto.media_avaliacoes %}
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="#FFC107" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7 1l1.5 3.5 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L2 5l3.5-.5L7 1z"/>
+                                            </svg>
+                                        {% else %}
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="#E5E7EB" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7 1l1.5 3.5 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L2 5l3.5-.5L7 1z"/>
+                                            </svg>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-xs text-gray-600 font-medium">
+                                    {{ produto.media_avaliacoes|floatformat:1 }} ({{ produto.total_avaliacoes }})
+                                </span>
+                            </div>
+                            {% endif %}
+                            
                             <p class="product-description">{{ produto.descricao|truncatewords:12 }}</p>
                             
                             <div class="product-pricing">

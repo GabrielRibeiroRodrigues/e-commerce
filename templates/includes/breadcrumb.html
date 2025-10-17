@@ -1,0 +1,78 @@
+<!-- Breadcrumb Navigation Component with Schema.org Markup -->
+{% load static %}
+
+<nav class="breadcrumb-container" aria-label="Navegação estruturada">
+    <!-- Schema.org Breadcrumb for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'core:home' %}"
+            }{% if breadcrumb_items %}{% for item in breadcrumb_items %},
+            {
+                "@type": "ListItem",
+                "position": {{ forloop.counter|add:1 }},
+                "name": "{{ item.title }}",
+                "item": "{{ request.scheme }}://{{ request.get_host }}{{ item.url }}"
+            }{% endfor %}{% endif %}
+        ]
+    }
+    </script>
+    
+    <!-- Visual Breadcrumb -->
+    <ol class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-2 text-sm">
+        <!-- Home -->
+        <li class="flex items-center">
+            <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-brand-600 transition-colors flex items-center gap-1.5">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6l6-4 6 4v7a1 1 0 01-1 1H3a1 1 0 01-1-1V6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M6 14v-5h4v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="hidden sm:inline">Home</span>
+            </a>
+        </li>
+        
+        <!-- Dynamic Breadcrumb Items -->
+        {% if breadcrumb_items %}
+            {% for item in breadcrumb_items %}
+                <li class="flex items-center gap-2">
+                    <!-- Separator -->
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-400">
+                        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    
+                    <!-- Item -->
+                    {% if not forloop.last %}
+                        <a href="{{ item.url }}" class="text-gray-600 hover:text-brand-600 transition-colors">
+                            {{ item.title }}
+                        </a>
+                    {% else %}
+                        <span class="text-brand-700 font-semibold" aria-current="page">
+                            {{ item.title }}
+                        </span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ol>
+</nav>
+
+<style>
+    .breadcrumb-container {
+        background-color: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    @media (max-width: 640px) {
+        .breadcrumb-container ol {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            font-size: 0.813rem;
+        }
+    }
+</style>
