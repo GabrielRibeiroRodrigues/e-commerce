@@ -7,6 +7,7 @@
     <title>{% block title %}Farmácia QUEOPS{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animations.css' %}">
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,7 +121,7 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body x-data="toastManager()" @toast.window="showToast($event.detail)">
+<body class="preload" x-data="toastManager()" @toast.window="showToast($event.detail)">
     <!-- Toast Notification Container -->
     <div class="fixed top-4 right-4 z-[100] space-y-3" x-cloak>
         <template x-for="toast in toasts" :key="toast.id">
@@ -858,6 +859,11 @@
             }
         };
         
+        // Remove preload class para habilitar animações
+        window.addEventListener('load', function() {
+            document.body.classList.remove('preload');
+        });
+        
         // Inicializar AOS (Animate On Scroll)
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof AOS !== 'undefined') {
@@ -868,6 +874,37 @@
                     offset: 50
                 });
             }
+            
+            // Animar contadores de números
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                // Usar Intersection Observer para iniciar quando visível
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            updateCounter();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                
+                observer.observe(counter);
+            });
         });
 
         // Toast notifications
