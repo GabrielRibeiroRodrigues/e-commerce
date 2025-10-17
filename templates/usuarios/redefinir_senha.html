@@ -4,89 +4,236 @@
 {% block title %}Redefinir Senha - Farmácia QUEOPS{% endblock %}
 
 {% block content %}
-<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--brand-050) 0%, var(--surface-muted) 100%); padding: 2rem 1rem;">
-    <div class="container" style="max-width: 450px;">
-        <div style="background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden;">
-            <!-- Header com gradiente -->
-            <div style="background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); padding: 2.5rem 2rem; text-align: center;">
-                <div style="background: white; width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <path d="M9 12l2 2 4-4"></path>
+<section class="bg-gradient-to-r from-brand-50 via-white to-blue-50 py-16" x-data="{ 
+    showPassword1: false,
+    showPassword2: false,
+    password: '',
+    confirmPassword: '',
+    strength: 0,
+    feedback: '',
+    strengthColor: 'bg-gray-300',
+    strengthText: '',
+    calculateStrength() {
+        let score = 0;
+        if (this.password.length >= 8) score += 25;
+        if (this.password.length >= 12) score += 10;
+        if (/[a-z]/.test(this.password) && /[A-Z]/.test(this.password)) score += 25;
+        if (/\d/.test(this.password)) score += 20;
+        if (/[^a-zA-Z0-9]/.test(this.password)) score += 20;
+        
+        this.strength = score;
+        
+        if (score < 40) {
+            this.strengthColor = 'bg-red-500';
+            this.strengthText = 'Fraca';
+            this.feedback = 'Use letras maiúsculas, minúsculas, números e símbolos';
+        } else if (score < 70) {
+            this.strengthColor = 'bg-yellow-500';
+            this.strengthText = 'Média';
+            this.feedback = 'Adicione mais caracteres ou símbolos';
+        } else {
+            this.strengthColor = 'bg-green-500';
+            this.strengthText = 'Forte';
+            this.feedback = 'Ótima senha!';
+        }
+    }
+}">
+    <div class="max-w-md mx-auto px-4 sm:px-6">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden" data-aos="fade-up">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-brand-600 to-brand-700 px-8 py-10 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
                 </div>
-                <h1 style="color: white; margin: 0; font-size: 1.8rem; font-weight: 600;">
-                    Nova Senha
-                </h1>
-                <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0; font-size: 0.95rem;">
-                    Crie uma senha segura para sua conta
-                </p>
+                <h1 class="text-3xl font-display font-extrabold text-white mb-2">Definir Nova Senha</h1>
+                <p class="text-brand-50">Escolha uma senha forte e única</p>
             </div>
 
-            <!-- Form -->
-            <div style="padding: 2rem;">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    {% for field in form %}
-                        <div style="margin-bottom: 1.25rem;">
-                            <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--neutral-700); font-size: 0.9rem;">
-                                {{ field.label }}
-                            </label>
-                            <div style="position: relative;">
-                                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--neutral-500);">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                    </svg>
-                                </span>
-                                <input 
-                                    type="password" 
-                                    name="{{ field.name }}" 
-                                    id="{{ field.id_for_label }}"
-                                    required
-                                    style="width: 100%; padding: 0.85rem 0.85rem 0.85rem 2.8rem; border: 2px solid var(--neutral-200); border-radius: 10px; font-size: 0.95rem; transition: all 0.3s; outline: none;"
-                                    onfocus="this.style.borderColor='var(--brand-500)'; this.style.boxShadow='0 0 0 3px rgba(30, 128, 80, 0.1)';"
-                                    onblur="this.style.borderColor='var(--neutral-200)'; this.style.boxShadow='none';"
-                                    placeholder="Digite sua nova senha"
-                                >
+            <!-- Body -->
+            <div class="p-8">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-6 p-4 rounded-xl border-2 {% if 'error' in message.tags %}bg-red-50 border-red-200 text-red-800{% elif 'success' in message.tags %}bg-green-50 border-green-200 text-green-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %}" role="alert">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    {% if 'error' in message.tags %}
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    {% elif 'success' in message.tags %}
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    {% else %}
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                    {% endif %}
+                                </svg>
+                                <span class="font-medium">{{ message }}</span>
                             </div>
-                            {% if field.help_text %}
-                                <small style="display: block; margin-top: 0.5rem; color: var(--neutral-600); font-size: 0.85rem; line-height: 1.4;">
-                                    {{ field.help_text|safe|striptags }}
-                                </small>
-                            {% endif %}
-                            {% if field.errors %}
-                                <div style="margin-top: 0.5rem;">
-                                    {% for error in field.errors %}
-                                        <p style="color: var(--accent-danger); font-size: 0.85rem; margin: 0.25rem 0;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                            </svg>
-                                            {{ error }}
-                                        </p>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     {% endfor %}
+                {% endif %}
 
-                    {% if form.non_field_errors %}
-                        <div style="background: rgba(220, 53, 69, 0.1); border-left: 3px solid var(--accent-danger); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
-                            {% for error in form.non_field_errors %}
-                                <p style="color: var(--accent-danger); font-size: 0.9rem; margin: 0;">{{ error }}</p>
-                            {% endfor %}
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <!-- Nova Senha -->
+                    <div>
+                        <label for="{{ form.new_password1.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nova Senha
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <input 
+                                :type="showPassword1 ? 'text' : 'password'"
+                                id="{{ form.new_password1.id_for_label }}"
+                                name="{{ form.new_password1.name }}"
+                                x-model="password"
+                                @input="calculateStrength()"
+                                class="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                                placeholder="Digite sua nova senha"
+                                required
+                            >
+                            <button 
+                                type="button"
+                                @click="showPassword1 = !showPassword1"
+                                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!showPassword1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <svg x-show="showPassword1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </button>
                         </div>
-                    {% endif %}
+                        
+                        <!-- Barra de Força -->
+                        <div x-show="password.length > 0" class="mt-3 space-y-2" x-cloak>
+                            <div class="flex items-center gap-2">
+                                <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div :class="strengthColor" class="h-full transition-all duration-300" :style="`width: ${strength}%`"></div>
+                                </div>
+                                <span class="text-xs font-semibold" :class="strength < 40 ? 'text-red-600' : strength < 70 ? 'text-yellow-600' : 'text-green-600'" x-text="strengthText"></span>
+                            </div>
+                            <p class="text-xs text-gray-600" x-text="feedback"></p>
+                        </div>
 
-                    <button type="submit" style="width: 100%; background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-700) 100%); color: white; border: none; padding: 1rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(30, 128, 80, 0.3); margin-top: 0.5rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(30, 128, 80, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(30, 128, 80, 0.3)';">
-                        Redefinir Senha
+                        {% if form.new_password1.errors %}
+                            <p class="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ form.new_password1.errors|join:", " }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirmar Senha -->
+                    <div>
+                        <label for="{{ form.new_password2.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Confirmar Nova Senha
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <input 
+                                :type="showPassword2 ? 'text' : 'password'"
+                                id="{{ form.new_password2.id_for_label }}"
+                                name="{{ form.new_password2.name }}"
+                                x-model="confirmPassword"
+                                class="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                                placeholder="Digite a senha novamente"
+                                required
+                            >
+                            <button 
+                                type="button"
+                                @click="showPassword2 = !showPassword2"
+                                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <svg x-show="!showPassword2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <svg x-show="showPassword2" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- Feedback de Correspondência -->
+                        <div x-show="confirmPassword.length > 0" class="mt-2" x-cloak>
+                            <p x-show="password === confirmPassword && confirmPassword.length > 0" class="text-sm text-green-600 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                As senhas correspondem
+                            </p>
+                            <p x-show="password !== confirmPassword && confirmPassword.length > 0" class="text-sm text-red-600 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                As senhas não correspondem
+                            </p>
+                        </div>
+
+                        {% if form.new_password2.errors %}
+                            <p class="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ form.new_password2.errors|join:", " }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="w-full mt-6 px-6 py-3.5 bg-trust-600 hover:bg-trust-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Redefinir Senha
+                        </span>
                     </button>
                 </form>
+
+                <!-- Dicas de Segurança -->
+                <div class="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="text-sm text-blue-800 space-y-1">
+                            <p class="font-semibold">Dicas para uma senha forte:</p>
+                            <ul class="list-disc list-inside space-y-0.5 text-xs">
+                                <li>Mínimo de 8 caracteres</li>
+                                <li>Combine letras maiúsculas e minúsculas</li>
+                                <li>Inclua números e símbolos especiais</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voltar ao Login -->
+                <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                    <p class="text-gray-600 mb-3">Lembrou sua senha?</p>
+                    <a href="{% url 'usuarios:login' %}" class="inline-flex items-center gap-2 text-brand-700 hover:text-brand-800 font-semibold transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Voltar ao Login
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
