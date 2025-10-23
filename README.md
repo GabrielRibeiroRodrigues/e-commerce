@@ -1,4 +1,4 @@
-# Farmácia  - Plataforma E-commerce# 🏥 Farmácia QUEOPS - E-commerce
+# Farmácia  - Plataforma E-commerce#  Farmácia QUEOPS - E-commerce
 
 
 
