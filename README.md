@@ -1,4 +1,4 @@
-# Farmácia QUEOPS - Plataforma E-commerce# 🏥 Farmácia QUEOPS - E-commerce
+# Farmácia  - Plataforma E-commerce# 🏥 Farmácia QUEOPS - E-commerce
 
 
 
@@ -6,7 +6,7 @@ Sistema completo de e-commerce desenvolvido para a Farmácia QUEOPS. Implementa 
 
 
 
-## Sobre o Projeto## 🚀 Tecnologias Utilizadas
+## Sobre o Projeto##  Tecnologias Utilizadas
 
 
 
@@ -20,7 +20,7 @@ Aplicação web construída para atender as necessidades de vendas online de uma
 
 **Para Clientes:**
 
-- Navegação por catálogo com filtros e busca## ✨ Funcionalidades
+- Navegação por catálogo com filtros e busca##  Funcionalidades
 
 - Sistema de favoritos (wishlist)
 
