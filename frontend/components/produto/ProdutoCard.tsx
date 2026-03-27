@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { useCarrinho } from '@/store/carrinho'
 import Estrelas from '@/components/ui/Estrelas'
+import { ShoppingCart, Check, ImageOff, Tag } from 'lucide-react'
 import type { Produto } from '@/types'
 
 export default function ProdutoCard({ produto }: { produto: Produto }) {
@@ -13,6 +14,10 @@ export default function ProdutoCard({ produto }: { produto: Produto }) {
   const { adicionarItem } = useCarrinho()
   const [adicionando, setAdicionando] = useState(false)
   const [adicionado, setAdicionado] = useState(false)
+
+  const desconto = produto.tem_promocao && produto.preco_promocional
+    ? Math.round((1 - parseFloat(produto.preco_final) / parseFloat(produto.preco)) * 100)
+    : null
 
   async function handleAddCarrinho(e: React.MouseEvent) {
     e.preventDefault()
@@ -24,74 +29,110 @@ export default function ProdutoCard({ produto }: { produto: Produto }) {
     try {
       await adicionarItem(produto.id)
       setAdicionado(true)
-      setTimeout(() => setAdicionado(false), 2000)
+      setTimeout(() => setAdicionado(false), 2200)
     } finally {
       setAdicionando(false)
     }
   }
 
   return (
-    <Link href={`/produtos/${produto.slug}`} className="group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative aspect-square bg-gray-50">
+    <Link
+      href={`/produtos/${produto.slug}`}
+      className="group flex flex-col bg-white rounded-2xl border border-neutral-200 overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:border-brand-200"
+    >
+      {/* Imagem */}
+      <div className="relative aspect-square bg-neutral-50 overflow-hidden">
         {produto.imagem_url ? (
           <Image
             src={produto.imagem_url}
             alt={produto.nome}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+          <div className="w-full h-full flex flex-col items-center justify-center text-neutral-300 gap-2">
+            <ImageOff className="w-10 h-10" strokeWidth={1} />
+            <span className="text-xs">Sem imagem</span>
           </div>
         )}
-        {produto.tem_promocao && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded">
-            Promoção
-          </span>
-        )}
+
+        {/* Badges */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {desconto !== null && (
+            <span className="badge bg-accent-500 text-white text-[10px] shadow-sm">
+              <Tag className="w-2.5 h-2.5" />
+              -{desconto}%
+            </span>
+          )}
+          {produto.destaque && !produto.tem_promocao && (
+            <span className="badge bg-brand-600 text-white text-[10px] shadow-sm">
+              ⭐ Destaque
+            </span>
+          )}
+        </div>
+
+        {/* Indisponível */}
         {!produto.disponivel && (
-          <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-            <span className="text-gray-500 font-medium text-sm">Indisponível</span>
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] flex items-center justify-center">
+            <span className="text-neutral-500 font-semibold text-sm bg-white/90 px-3 py-1.5 rounded-full shadow-sm border border-neutral-200">
+              Indisponível
+            </span>
           </div>
         )}
       </div>
 
-      <div className="p-4">
-        <p className="text-xs text-blue-600 mb-1">{produto.categoria.nome}</p>
-        <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-2">{produto.nome}</h3>
+      {/* Conteúdo */}
+      <div className="flex flex-col flex-1 p-4 gap-2">
+        <p className="text-[11px] text-brand-600 font-semibold uppercase tracking-wider">{produto.categoria.nome}</p>
+        <h3 className="font-semibold text-neutral-800 text-sm leading-snug line-clamp-2 group-hover:text-brand-700 transition-colors flex-1">
+          {produto.nome}
+        </h3>
 
         {produto.total_avaliacoes > 0 && (
-          <div className="mb-2">
-            <Estrelas media={produto.media_avaliacoes} total={produto.total_avaliacoes} />
-          </div>
+          <Estrelas media={produto.media_avaliacoes} total={produto.total_avaliacoes} />
         )}
 
-        <div className="flex items-center gap-2 mb-3">
+        {/* Preço */}
+        <div className="flex items-baseline gap-1.5 mt-1">
           {produto.tem_promocao && (
-            <span className="text-xs text-gray-400 line-through">
+            <span className="text-xs text-neutral-400 line-through">
               R$ {parseFloat(produto.preco).toFixed(2).replace('.', ',')}
             </span>
           )}
-          <span className={`font-bold ${produto.tem_promocao ? 'text-red-600' : 'text-gray-900'}`}>
+          <span className={`text-base font-bold ${produto.tem_promocao ? 'text-red-600' : 'text-neutral-900'}`}>
             R$ {parseFloat(produto.preco_final).toFixed(2).replace('.', ',')}
           </span>
         </div>
 
+        {/* Botão */}
         <button
           onClick={handleAddCarrinho}
           disabled={!produto.disponivel || adicionando}
-          className={`w-full py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+          className={`mt-1 w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
             adicionado
-              ? 'bg-green-500 text-white'
+              ? 'bg-emerald-500 text-white scale-[0.98]'
               : produto.disponivel
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              ? 'bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98]'
+              : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
           }`}
         >
-          {adicionado ? '✓ Adicionado' : adicionando ? 'Adicionando...' : 'Adicionar ao Carrinho'}
+          {adicionado ? (
+            <>
+              <Check className="w-4 h-4" />
+              Adicionado!
+            </>
+          ) : adicionando ? (
+            <span className="flex gap-1">
+              <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:0ms]" />
+              <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:150ms]" />
+              <span className="w-1.5 h-1.5 bg-white/70 rounded-full animate-bounce [animation-delay:300ms]" />
+            </span>
+          ) : (
+            <>
+              <ShoppingCart className="w-4 h-4" />
+              Adicionar
+            </>
+          )}
         </button>
       </div>
     </Link>
