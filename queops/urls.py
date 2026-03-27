@@ -13,6 +13,7 @@ admin.site.index_title = 'Painel de Controle'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('queops.api_urls')),
     path('', include('core.urls')),
     path('produtos/', include('produtos.urls')),
     path('usuarios/', include('usuarios.urls')),
