@@ -1,20 +1,29 @@
 import Link from 'next/link'
 import ProdutoCard from '@/components/produto/ProdutoCard'
+import OrdenarSelect from '@/components/ui/OrdenarSelect'
 import type { PaginatedResponse, Produto, Categoria } from '@/types'
 
-const API = process.env.NEXT_PUBLIC_API_URL
+const API = process.env.API_URL || 'http://localhost:8000/api'
 
 async function getProdutos(params: Record<string, string>): Promise<PaginatedResponse<Produto>> {
   const qs = new URLSearchParams(params).toString()
-  const res = await fetch(`${API}/produtos/?${qs}`, { next: { revalidate: 30 } })
-  if (!res.ok) return { count: 0, next: null, previous: null, results: [] }
-  return res.json()
+  try {
+    const res = await fetch(`${API}/produtos/?${qs}`, { next: { revalidate: 30 } })
+    if (!res.ok) return { count: 0, next: null, previous: null, results: [] }
+    return res.json()
+  } catch {
+    return { count: 0, next: null, previous: null, results: [] }
+  }
 }
 
 async function getCategorias(): Promise<Categoria[]> {
-  const res = await fetch(`${API}/categorias/`, { next: { revalidate: 300 } })
-  if (!res.ok) return []
-  return res.json()
+  try {
+    const res = await fetch(`${API}/categorias/`, { next: { revalidate: 300 } })
+    if (!res.ok) return []
+    return res.json()
+  } catch {
+    return []
+  }
 }
 
 interface Props {
@@ -102,19 +111,7 @@ export default async function ProdutosPage({ searchParams }: Props) {
               </button>
             </form>
 
-            <select
-              defaultValue={params.ordenar || '-criado_em'}
-              onChange={(e) => {
-                const url = new URL(window.location.href)
-                url.searchParams.set('ordenar', e.target.value)
-                window.location.href = url.toString()
-              }}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            >
-              {ordenarOpcoes.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+            <OrdenarSelect opcoes={ordenarOpcoes} valorAtual={params.ordenar || '-criado_em'} />
           </div>
 
           <p className="text-sm text-gray-500 mb-4">{count} produto{count !== 1 ? 's' : ''} encontrado{count !== 1 ? 's' : ''}</p>
