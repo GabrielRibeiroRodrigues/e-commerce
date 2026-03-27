@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Itens do Carrinho',
                 'ordering': ['criado_em'],
                 'indexes': [models.Index(fields=['usuario', 'produto'], name='pedidos_car_usuario_8a3799_idx'), models.Index(fields=['session_key', 'produto'], name='pedidos_car_session_3cd99a_idx'), models.Index(fields=['criado_em'], name='pedidos_car_criado__634433_idx')],
-                'constraints': [models.UniqueConstraint(condition=models.Q(('usuario__isnull', False)), fields=('usuario', 'produto'), name='unique_usuario_produto'), models.UniqueConstraint(condition=models.Q(('session_key__isnull', False)), fields=('session_key', 'produto'), name='unique_session_produto'), models.CheckConstraint(condition=models.Q(('usuario__isnull', False), ('session_key__isnull', False), _connector='OR'), name='usuario_ou_session_obrigatorio')],
+                'constraints': [models.UniqueConstraint(condition=models.Q(('usuario__isnull', False)), fields=('usuario', 'produto'), name='unique_usuario_produto'), models.UniqueConstraint(condition=models.Q(('session_key__isnull', False)), fields=('session_key', 'produto'), name='unique_session_produto'), models.CheckConstraint(check=models.Q(('usuario__isnull', False), ('session_key__isnull', False), _connector='OR'), name='usuario_ou_session_obrigatorio')],
             },
         ),
     ]
